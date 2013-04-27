@@ -1,3 +1,4 @@
 dev/*
 *.swp
 db/pcaps.db
+argus/eth0

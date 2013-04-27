@@ -68,8 +68,8 @@ fopts = {
 }
 
 dev_regx = Regexp.new(options.device_regx)
-Pcaper::Models::Pcap.where(:argus_file => nil).each do |pcap|
-  pcap_file = File.join(pcap.directory.location, pcap.filename)
+Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
+  pcap_file = pcap.filename
   
   unless File.exist?(pcap_file)
     $stderr.puts "Could not find #{pcap_file}"
@@ -84,7 +84,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).each do |pcap|
            end
 
   dst_dir = Time.at(pcap.start_time).strftime(options.dst_dir.gsub(/{device}/i, device))
-  dst_file = File.join(dst_dir, pcap.filename + ".argus")
+  dst_file = File.join(dst_dir, File.basename(pcap.filename) + ".argus")
 
   mkdir_p(dst_dir, fopts) unless File.exist?(dst_dir)
   if File.exist?(dst_file)
@@ -100,7 +100,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).each do |pcap|
       pcap.save
       cmd = %{racluster -M replace -r #{dst_file}}
       puts cmd if options.verbose
-      system(cmd)
+      system(cmd) unless pcap.num_packets == 0 # racluster seqfaults when no packets are in the file
     else
       $stderr.puts "Command failed! (#{cmd})"
     end

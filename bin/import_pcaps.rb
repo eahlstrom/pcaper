@@ -84,6 +84,9 @@ Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
 
   capinfo[:filename] = File.expand_path(File.join(dst_dir, File.basename(pcap_file)))
   puts "Adding #{pcap_file} (#{capinfo[:sha1sum]}) to db..." if options.verbose
-  Pcaper::Models::Pcap.add_capinfo(capinfo) unless options.dry_run
+  unless options.dry_run
+    pcap = Pcaper::Models::Pcap.new(capinfo)
+    pcap.save
+  end
 end
 

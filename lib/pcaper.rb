@@ -14,5 +14,3 @@ Sequel::Model.db = Pcaper::DB
 require 'pcaper/capinfo'
 require 'pcaper/find_closed_pcaps'
 require 'pcaper/models/pcaps'
-require 'pcaper/models/directory'
-
