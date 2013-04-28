@@ -11,6 +11,9 @@ module Pcaper
 end
 Sequel::Model.db = Pcaper::DB
 
+require 'pcaper/helpers'
+require 'pcaper/ip_helpers'
 require 'pcaper/capinfo'
 require 'pcaper/find_closed_pcaps'
-require 'pcaper/models/pcaps'
+require 'pcaper/models/pcap'
+require 'pcaper/carve'

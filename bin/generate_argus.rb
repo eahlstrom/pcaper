@@ -38,7 +38,7 @@ opts = OptionParser.new('Usage: generate_argus.rb [options]', 25, ' ') do |opts|
     options.verbose = bool
   end
 
-  opts.on('-S', '--dry-run', %{(O) Just show steps. (implies -v)}) do |bool|
+  opts.on('-n', '--dry-run', %{(O) Just show steps. (implies -v)}) do |bool|
     options.dry_run = bool
     options.verbose = true
   end
