@@ -21,7 +21,7 @@ options.verbose = false
 options.dry_run = false
 
 opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
-  opts.separator "Options:"
+  opts.separator "\nRequired parameters:"
 
   opts.on('-p', '--ip-proto PROTO', %{(R) ip protocol.}) do |arg|
     options.proto = arg
@@ -42,6 +42,8 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   opts.on('-d', '--destination-port PORT', %{(R) destination port.}) do |arg|
     options.dst_port = arg
   end
+
+  opts.separator "\nOptional parameters:\n"
 
   opts.on('-A', '--records-around NUM', %{(O) Look for session in NUM files around match.}) do |arg|
     options.recs_around = arg 
@@ -69,10 +71,10 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   end
 
   opts.separator ""
-  opts.separator "Default:"
-  opts.separator "  records-around - #{options.recs_around}"
-  opts.separator "  tmp-dir      - #{options.tmp_dir}"
-  opts.separator "  dst-pcap       - #{options.dst_pcap}"
+  opts.separator "Default values:"
+  opts.separator "  records-around  - #{options.recs_around}"
+  opts.separator "  tmp-dir         - #{options.tmp_dir}"
+  opts.separator "  dst-pcap        - #{options.dst_pcap}"
   opts.separator ""
 
 

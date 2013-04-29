@@ -11,7 +11,7 @@ class Pcaper::FindClosedPcaps
     @pcaps ||= Dir.glob(File.join(dir, file_glob)).find_all do |file|
       stat = File.stat(file)
       stat.file? && !open_pcap_inodes.include?(stat.ino)
-    end
+    end.sort{|a,b| File.stat(a).mtime <=> File.stat(b).mtime}
   end
 
   def self.files(dir, file_glob='*.pcap')

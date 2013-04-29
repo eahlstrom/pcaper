@@ -20,8 +20,8 @@ options.device_regx = '(eth\d+)'
 options.verbose = false
 options.dry_run = false
 
-opts = OptionParser.new('Usage: generate_argus.rb [options]', 25, ' ') do |opts|
-  opts.separator "Options:"
+opts = OptionParser.new('Usage: generate_argus.rb [options]', 30, ' ') do |opts|
+  opts.separator "\nOptional parameters:\n"
   opts.on('-d', '--dst-dir DIR', %{(O) Where to put the generated files.}) do |dir|
     options.dst_dir = dir
   end
@@ -44,7 +44,7 @@ opts = OptionParser.new('Usage: generate_argus.rb [options]', 25, ' ') do |opts|
   end
 
   opts.separator ""
-  opts.separator "Default options:"
+  opts.separator "Default values:"
   opts.separator "  dst-dir       - '#{options.dst_dir}'"
   opts.separator "  argus-options - '#{options.argus_opts}'"
   opts.separator "  device-regexp - '#{options.device_regx}'"
