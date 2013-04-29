@@ -23,7 +23,7 @@ options.device_regx = '(eth\d+)'
 options.verbose = false
 options.dry_run = false
 
-opts = OptionParser.new('Usage: import_pcaps.rb [options] pcaps_directory', 22, ' ') do |opts|
+opts = OptionParser.new('Usage: import_pcaps.rb [options] pcaps_directory', 30, ' ') do |opts|
   opts.separator "Options:"
   opts.on('-d', '--dst-dir DIR', %{(O) move pcap's. (default: no move)}) do |dir|
     options.dst_dir = dir

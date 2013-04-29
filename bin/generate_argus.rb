@@ -14,7 +14,7 @@ require 'fileutils'
 include FileUtils
 
 options = OpenStruct.new
-options.dst_dir = File.expand_path(File.join(File.dirname(__FILE__), '..', 'argus', '{device}', '%Y', '%m', '%d'))
+options.dst_dir = Pcaper::CONFIG[:argusdir]
 options.argus_opts = '-U 100'
 options.device_regx = '(eth\d+)'
 options.verbose = false

@@ -1,10 +1,33 @@
 require 'sequel'
 require 'digest'
+require 'yaml'
+
+module Pcaper
+  CONFIG_FILE = ENV['PCAPER_CONF'] || '/etc/pcaper/config.yml'
+  begin
+    CONFIG = YAML::load_file(CONFIG_FILE)
+  rescue Errno::ENOENT
+    default_config = {
+      :db       => '/etc/pcaper/pcaps.db',
+      :argusdir => '/opt/pcap/argus/{device}/%Y/%m/%d',
+    }
+    $stderr.puts "Cound not load config file: #{CONFIG_FILE}"
+    $stderr.puts "Please generate this file first or specify yours"
+    $stderr.puts "with the environment variable PCAPER_CONF"
+    $stderr.puts
+    $stderr.puts "Example config:"
+    $stderr.puts "-- snipp --"
+    $stderr.puts default_config.to_yaml
+    $stderr.puts "-- snipp --"
+    exit 127
+  end
+end
+
 
 module Pcaper
   VERSION = "0.0.1"
   DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-  DB = Sequel.sqlite(File.join(DIR, 'db', 'pcaps.db'))
+  DB = Sequel.sqlite(Pcaper::CONFIG[:db])
 
   module Models
   end
