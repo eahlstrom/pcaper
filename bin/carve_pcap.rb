@@ -125,11 +125,12 @@ end
 
 puts "Found sessions:"
 sessions.each do |r|
-  printf "%s -> %s | %s -> %s proto: %s, state: %s, %s bytes, %s pkts\n", 
+  printf("(%s -> %s) ", r[:stime], r[:ltime]) if $DEBUG
+  printf("%s -> %s | %s -> %s proto: %s, state: %s, %s bytes, %s pkts\n", 
     human_time(r[:stime]), human_time(r[:ltime]), 
     [r[:saddr], r[:sport]].join(":").ljust(21),
     [r[:daddr], r[:dport]].join(":").ljust(21), 
-    r[:proto], r[:state], r[:bytes], r[:pkts]
+    r[:proto], r[:state], r[:bytes], r[:pkts])
 end
 puts
 print "Press enter to start. "

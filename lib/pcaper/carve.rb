@@ -36,27 +36,17 @@ class Pcaper::Carve
   def session_find
     return @sessions if defined? @sessions
     argus_files = records.collect{|r| r.argus_file}
-    columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts"
-    cmd = %{racluster -F #{rarc_file} -c, -nnnuzs #{columns} -r \\\n}
-    argus_files.each do |argus_file|
-      cmd += %{ #{argus_file} \\\n}
-    end
-    cmd += %{ - '#{pcap_filter}'}
-    puts cmd if $DEBUG
-    @sessions = `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
-  end
-
-  def rarc_file
-    File.expand_path(File.join(File.dirname(__FILE__), '.rarc'))
+    @sessions = ra(argus_files)
   end
 
   def carve_session(tmp_dir, output_file)
     mkdir_p(tmp_dir) unless File.exist?(tmp_dir)
     part_files = []
     session_find.each do |sess|
-      records_for_session = records_for_session(sess)
+      records_for_session = records_within(sess[:stime], sess[:ltime])
       puts "SQL: #{records_for_session.sql.inspect}" if $DEBUG
       records_for_session.each_with_index do |rec, i|
+        next if ra([rec[:argus_file]], 'ra').empty?
         part_file = File.join(tmp_dir, %{part_#{$$}.#{i}})
         cmd = %{tcpdump -w #{part_file} -nr #{rec[:filename]} '#{pcap_filter}'}
         puts cmd if verbose
@@ -135,10 +125,10 @@ class Pcaper::Carve
         end
     end
 
-    def records_for_session(sess)
+    def records_within(stime, ltime)
       device_scope.
-        select(:filename).
-        where("start_time >= ? AND end_time <= ?", sess[:stime], sess[:ltime]).
+        select(:id, :start_time, :end_time, :filename, :argus_file).
+        where("start_time BETWEEN ? AND ?", stime, ltime).
         order(:start_time)
     end
 
@@ -148,6 +138,21 @@ class Pcaper::Carve
       else
         Pcaper::Models::Pcap
       end
+    end
+
+    def ra(argus_files, racmd = 'racluster')
+      columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts"
+      cmd = %{#{racmd} -F #{rarc_file} -c, -nnnuzs #{columns} -r \\\n}
+      argus_files.each do |argus_file|
+        cmd += %{ #{argus_file} \\\n}
+      end
+      cmd += %{ - '#{pcap_filter}'}
+      puts cmd if $DEBUG
+      `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
+    end
+
+    def rarc_file
+      File.expand_path(File.join(File.dirname(__FILE__), '.rarc'))
     end
 
 end
