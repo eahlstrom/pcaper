@@ -15,6 +15,8 @@ include FileUtils
 
 options = OpenStruct.new
 options.recs_around = 5
+options.tmp_dir = File.join(ENV['HOME'], 'carved_pcaps')
+options.dst_pcap = Time.now.strftime("carved.pcap")
 options.verbose = false
 options.dry_run = false
 
@@ -49,6 +51,14 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
     options.devices = arg.split(",")
   end
 
+  opts.on('-t', '--tmp-dir DIR', %{(O) Directory to use as tmp storage for partial pcaps.}) do |arg|
+    options.tmp_dir = arg
+  end
+
+  opts.on('-w', '--dst-pcap FILE', %{(O) Filename of the dst pcap.}) do |arg|
+    options.dst_pcap = arg
+  end
+
   opts.on('-v', '--verbose', %{(O) verbose output.}) do |bool|
     options.verbose = bool
   end
@@ -61,6 +71,8 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   opts.separator ""
   opts.separator "Default:"
   opts.separator "  records-around - #{options.recs_around}"
+  opts.separator "  tmp-dir      - #{options.tmp_dir}"
+  opts.separator "  dst-pcap       - #{options.dst_pcap}"
   opts.separator ""
 
 
@@ -73,7 +85,7 @@ end
 
 begin
   opts.parse!
-  [:proto, :src_host, :src_port, :dst_host, :dst_port].each do |k|
+  [:proto, :src_host, :src_port].each do |k|
     raise OptionParser::InvalidOption, "Required option: #{k.inspect}" if options.send(k).nil?
   end
 rescue OptionParser::InvalidOption => e
@@ -95,6 +107,7 @@ carver = Pcaper::Carve.new(
   :dst_host   => options.dst_host,
   :dst_port   => options.dst_port,
   :records_around => options.recs_around,
+  :devices    => options.devices,
   :verbose    => options.verbose,
 )
 
@@ -104,11 +117,27 @@ end
 
 printf "Querying between: %s -> %s\n\n", human_time(carver.query_start), human_time(carver.query_end)
 
-puts "Found rows:"
-carver.session_find.each do |r|
-  printf "%s -> %s | %s:%s -> %s:%s, proto: %s, state: %s", 
-    human_time(r[:stime]), human_time(r[:ltime]), r[:saddr], r[:sport],
-    r[:daddr], r[:dport], r[:proto], r[:state]
+sessions = carver.session_find
+if sessions.empty?
+  puts "No sessions found within this timeframe."
+  exit 1
+end
+
+puts "Found sessions:"
+sessions.each do |r|
+  printf "%s -> %s | %s -> %s proto: %s, state: %s, %s bytes, %s pkts\n", 
+    human_time(r[:stime]), human_time(r[:ltime]), 
+    [r[:saddr], r[:sport]].join(":").ljust(21),
+    [r[:daddr], r[:dport]].join(":").ljust(21), 
+    r[:proto], r[:state], r[:bytes], r[:pkts]
 end
 puts
+print "Press enter to start. "
+$stdin.gets
+begin
+  carver.carve_session(options.tmp_dir, options.dst_pcap) 
+rescue RuntimeError => e
+  puts e.message
+  exit 1
+end
 

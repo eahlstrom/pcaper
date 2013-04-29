@@ -1,3 +1,6 @@
+#
+# This file is needed by carve.rb please dont modify
+#
 RA_PRINT_LABELS=-1
 RA_PRINT_NAMES=none
 RA_USEC_PRECISION=0

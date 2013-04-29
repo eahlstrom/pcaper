@@ -2,3 +2,4 @@ dev/*
 *.swp
 db/pcaps.db
 argus/eth0
+carved_pcaps/*

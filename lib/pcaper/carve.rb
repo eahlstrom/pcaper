@@ -1,3 +1,5 @@
+require 'fileutils'
+
 class Pcaper::Carve
   include Pcaper::IPHelpers
   include Pcaper::Helpers
@@ -13,28 +15,69 @@ class Pcaper::Carve
     @start_time = verified_time(opts[:start_time]).to_i
     @proto = verified_protocol(opts[:proto])
     @src_host = verified_ipv4(opts[:src_host])
-    @src_port = verified_port(opts[:src_port])
     @dst_host = verified_ipv4(opts[:dst_host])
-    @dst_port = verified_port(opts[:dst_port])
+    if @proto == 6 || @proto == 17
+      @src_port = verified_port(opts[:src_port])
+      @dst_port = verified_port(opts[:dst_port])
+    end
     @devices = opts[:devices]
     @records_around = opts[:records_around].to_i
     @verbose = !!opts[:verbose]
   end
 
   def pcap_filter
-    sprintf("ip proto %d and host (%s and %s) and port (%d and %d)", 
-            proto, src_host, dst_host, src_port, dst_port) 
+    filter = sprintf("ip proto %d and host (%s and %s)", proto, src_host, dst_host)
+    if proto == 6 || proto == 17
+     filter += sprintf(" and port (%d and %d)", src_port, dst_port)
+    end
+    filter
   end
 
   def session_find
+    return @sessions if defined? @sessions
     argus_files = records.collect{|r| r.argus_file}
-    columns = "stime,ltime,state,proto,saddr,sport,daddr,dport"
-    cmd = %{racluster -F etc/rarc -c, -nnnuzs #{columns} -r #{argus_files.join(' ')} - '#{pcap_filter}'}
-    puts cmd if verbose
-    `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
+    columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts"
+    cmd = %{racluster -F #{rarc_file} -c, -nnnuzs #{columns} -r \\\n}
+    argus_files.each do |argus_file|
+      cmd += %{ #{argus_file} \\\n}
+    end
+    cmd += %{ - '#{pcap_filter}'}
+    puts cmd if $DEBUG
+    @sessions = `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
   end
 
-  def carve_session_in_records
+  def rarc_file
+    File.expand_path(File.join(File.dirname(__FILE__), '.rarc'))
+  end
+
+  def carve_session(tmp_dir, output_file)
+    mkdir_p(tmp_dir) unless File.exist?(tmp_dir)
+    part_files = []
+    session_find.each do |sess|
+      records_for_session = records_for_session(sess)
+      puts "SQL: #{records_for_session.sql.inspect}" if $DEBUG
+      records_for_session.each_with_index do |rec, i|
+        part_file = File.join(tmp_dir, %{part_#{$$}.#{i}})
+        cmd = %{tcpdump -w #{part_file} -nr #{rec[:filename]} '#{pcap_filter}'}
+        puts cmd if verbose
+        if system(cmd)
+          part_files << part_file
+        else
+          raise "'#{cmd}' failed!"
+        end
+      end
+    end
+    if part_files.empty?
+      raise "No part files were produced! This must be a bug!"
+    else
+      cmd = %{mergecap -w #{output_file} #{part_files.join(" ")}}
+      puts cmd if verbose
+      if system(cmd)
+        FileUtils.rm_f(part_files)
+      else
+        raise "'#{cmd}' failed!"
+      end
+    end
   end
 
   def query_start
@@ -90,6 +133,13 @@ class Pcaper::Carve
         collect do |rec|
           rec 
         end
+    end
+
+    def records_for_session(sess)
+      device_scope.
+        select(:filename).
+        where("start_time >= ? AND end_time <= ?", sess[:stime], sess[:ltime]).
+        order(:start_time)
     end
 
     def device_scope

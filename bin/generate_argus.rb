@@ -101,6 +101,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
       cmd = %{racluster -M replace -r #{dst_file}}
       puts cmd if options.verbose
       system(cmd) unless pcap.num_packets == 0 # racluster seqfaults when no packets are in the file
+      system(%{touch -r #{pcap_file} #{dst_file}})
     else
       $stderr.puts "Command failed! (#{cmd})"
     end
