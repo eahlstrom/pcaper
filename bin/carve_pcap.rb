@@ -18,6 +18,7 @@ options.tmp_dir = File.join(ENV['HOME'], 'carved_pcaps')
 options.dst_pcap = Time.now.strftime("carved.pcap")
 options.verbose = false
 options.dry_run = false
+options.bpf_filter = nil
 
 opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   opts.separator "\nRequired parameters:"
@@ -60,6 +61,10 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
     options.dst_pcap = arg
   end
 
+  opts.on('-f', '--bpf-filter filter', %{(O) Use capture filter instead.}) do |arg|
+    options.bpf_filter = arg
+  end
+
   opts.on('-v', '--verbose', %{(O) verbose output.}) do |bool|
     options.verbose = bool
   end
@@ -86,8 +91,10 @@ end
 
 begin
   opts.parse!
-  [:proto, :src_host, :src_port].each do |k|
-    raise OptionParser::InvalidOption, "Required option: #{k.inspect}" if options.send(k).nil?
+  unless options.bpf_filter
+    [:proto, :src_host, :src_port].each do |k|
+      raise OptionParser::InvalidOption, "Required option: #{k.inspect}" if options.send(k).nil?
+    end
   end
 rescue OptionParser::InvalidOption => e
   print e.message + "\n\n" unless e.message.empty?
@@ -108,6 +115,7 @@ carver = Pcaper::Carve.new(
   :dst_host   => options.dst_host,
   :dst_port   => options.dst_port,
   :records_around => options.recs_around,
+  :bpf_filter => options.bpf_filter,
   :devices    => options.devices,
   :verbose    => options.verbose
 )

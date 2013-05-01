@@ -12,25 +12,31 @@ class Pcaper::Carve
       raise("Need option key: #{k.inspect}") unless opts.has_key?(k)
     end
 
-    @start_time = verified_time(opts[:start_time]).to_i
-    @proto = verified_protocol(opts[:proto])
-    @src_host = verified_ipv4(opts[:src_host])
-    @dst_host = verified_ipv4(opts[:dst_host])
-    if @proto == 6 || @proto == 17
-      @src_port = verified_port(opts[:src_port])
-      @dst_port = verified_port(opts[:dst_port])
+    if opts[:bpf_filter]
+      puts "Using bpf filter from option. (#{@pcap_filter})" if $DEBUG
+      @pcap_filter = opts[:bpf_filter]
+    else
+      @proto = verified_protocol(opts[:proto])
+      @src_host = verified_ipv4(opts[:src_host])
+      @dst_host = verified_ipv4(opts[:dst_host])
+      if @proto == 6 || @proto == 17
+        @src_port = verified_port(opts[:src_port])
+        @dst_port = verified_port(opts[:dst_port])
+      end
     end
+    @start_time = verified_time(opts[:start_time]).to_i
     @devices = opts[:devices]
     @records_around = opts[:records_around].to_i
     @verbose = $DEBUG || !!opts[:verbose]
   end
 
   def pcap_filter
-    filter = sprintf("ip proto %d and host (%s and %s)", proto, src_host, dst_host)
+    return @pcap_filter if @pcap_filter
+    @pcap_filter = sprintf("ip proto %d and host (%s and %s)", proto, src_host, dst_host)
     if proto == 6 || proto == 17
-     filter += sprintf(" and port (%d and %d)", src_port, dst_port)
+     @pcap_filter += sprintf(" and port (%d and %d)", src_port, dst_port)
     end
-    filter
+    @pcap_filter
   end
 
   def session_find
