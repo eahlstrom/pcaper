@@ -22,7 +22,7 @@ class Pcaper::Carve
     end
     @devices = opts[:devices]
     @records_around = opts[:records_around].to_i
-    @verbose = !!opts[:verbose]
+    @verbose = $DEBUG || !!opts[:verbose]
   end
 
   def pcap_filter
@@ -107,7 +107,7 @@ class Pcaper::Carve
       device_scope.
         where("start_time < ?", start_time).
         select(:id, :start_time, :end_time, :filename, :argus_file).
-        order(Sequel.desc :start_time).
+        order(:start_time.desc).
         limit(limit+1).
         collect do |rec|
           rec 
@@ -128,7 +128,7 @@ class Pcaper::Carve
     def records_within(stime, ltime)
       device_scope.
         select(:id, :start_time, :end_time, :filename, :argus_file).
-        where("start_time BETWEEN ? AND ?", stime, ltime).
+        where("end_time >= ? AND start_time <= ?", stime, ltime).
         order(:start_time)
     end
 
@@ -148,7 +148,9 @@ class Pcaper::Carve
       end
       cmd += %{ - '#{pcap_filter}'}
       puts cmd if $DEBUG
-      `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
+      rows = `#{cmd}`.split("\n").collect{|line| create_hash(columns.split(","), line.split(","))}
+      puts rows.inspect if $DEBUG
+      rows
     end
 
     def rarc_file

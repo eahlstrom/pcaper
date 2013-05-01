@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 begin
   require 'pcaper'
 rescue LoadError
@@ -83,7 +82,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
              raise "Could not match device with regexp: #{dev_regx.inspect}"
            end
 
-  dst_dir = Time.at(pcap.start_time).strftime(options.dst_dir.gsub(/{device}/i, device))
+  dst_dir = Time.at(pcap.start_time).strftime(options.dst_dir.gsub(/\{device\}/i, device))
   dst_file = File.join(dst_dir, File.basename(pcap.filename) + ".argus")
 
   mkdir_p(dst_dir, fopts) unless File.exist?(dst_dir)

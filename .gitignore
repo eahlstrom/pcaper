@@ -4,3 +4,4 @@ db/pcaps.db
 argus/eth0
 carved_pcaps/*
 tst.pcap
+carved.pcap

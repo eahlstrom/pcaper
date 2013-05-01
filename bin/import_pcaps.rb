@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 begin
   require 'pcaper'
 rescue LoadError
@@ -30,7 +29,7 @@ opts = OptionParser.new('Usage: import_pcaps.rb [options] pcaps_directory', 30, 
   end
 
   opts.on('-p', '--pcap-name GLOB', %{(O) pcap name glob to find pcap with. (default: #{options.pcap_glob})}) do |glob|
-    options.glob = glob
+    options.pcap_glob = glob
   end
 
   opts.on('-R', '--device-regexp REGX', %{(O) Regexp to fetch device name.}) do |regexp|
@@ -82,7 +81,7 @@ Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
   capinfo = Pcaper::Capinfo.capinfo(pcap_file)
 
   if options.dst_dir
-    dst_dir = Time.at(capinfo[:start_time].to_i).strftime(options.dst_dir).gsub(/{device}/, device)
+    dst_dir = Time.at(capinfo[:start_time].to_i).strftime(options.dst_dir).gsub(/\{device\}/, device)
     mkdir_p(dst_dir, fopts) unless File.exist?(dst_dir)
     mv(pcap_file, dst_dir, fopts)
   else

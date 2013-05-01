@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 begin
   require 'pcaper'
 rescue LoadError
@@ -110,7 +109,7 @@ carver = Pcaper::Carve.new(
   :dst_port   => options.dst_port,
   :records_around => options.recs_around,
   :devices    => options.devices,
-  :verbose    => options.verbose,
+  :verbose    => options.verbose
 )
 
 def human_time(usec)
