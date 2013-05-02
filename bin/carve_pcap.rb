@@ -43,6 +43,11 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
     options.dst_port = arg
   end
 
+  opts.separator "OR:\n"
+  opts.on('-f', '--bpf-filter filter', %{(O) Use capture filter instead.}) do |arg|
+    options.bpf_filter = arg
+  end
+
   opts.separator "\nOptional parameters:\n"
 
   opts.on('-A', '--records-around NUM', %{(O) Look for session in NUM files around match.}) do |arg|
@@ -59,10 +64,6 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
 
   opts.on('-w', '--dst-pcap FILE', %{(O) Filename of the dst pcap.}) do |arg|
     options.dst_pcap = arg
-  end
-
-  opts.on('-f', '--bpf-filter filter', %{(O) Use capture filter instead.}) do |arg|
-    options.bpf_filter = arg
   end
 
   opts.on('-v', '--verbose', %{(O) verbose output.}) do |bool|
@@ -86,6 +87,7 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   opts.separator "Examples:"
   opts.separator "  carve_pcap.rb -p tcp -S 10.0.0.1 -s 12345 -D 10.0.0.10 -d 22 1367070618"
   opts.separator "  carve_pcap.rb -r eth0,eth2 -p tcp -S 10.0.0.1 -s 12345 -D 10.0.0.10 -d 22 1367070618"
+  opts.separator "  carve_pcap.rb -f 'host 10.0.0.1 and port 53'"
   opts.separator ""
 end
 
