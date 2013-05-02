@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tmpdir'
 
 class Pcaper::Carve
   include Pcaper::IPHelpers
@@ -46,7 +47,7 @@ class Pcaper::Carve
   end
 
   def carve_session(tmp_dir, output_file)
-    mkdir_p(tmp_dir) unless File.exist?(tmp_dir)
+    tmp_dir = Dir.mktmpdir('pcaper_', tmp_dir)
     part_files = []
     session_find.each do |sess|
       records_for_session = records_within(sess[:stime], sess[:ltime])
@@ -69,9 +70,9 @@ class Pcaper::Carve
       cmd = %{mergecap -w #{output_file} #{part_files.join(" ")}}
       puts cmd if verbose
       if system(cmd)
-        FileUtils.rm_f(part_files)
+        FileUtils.rm_rf(tmp_dir, :verbose => $DEBUG || verbose)
       else
-        raise "'#{cmd}' failed!"
+        raise "'#{cmd}' failed! (leaving tmpdir '#{tmp_dir}' untouched)"
       end
     end
   end

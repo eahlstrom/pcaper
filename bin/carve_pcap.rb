@@ -14,7 +14,7 @@ include FileUtils
 
 options = OpenStruct.new
 options.recs_around = 5
-options.tmp_dir = File.join(ENV['HOME'], 'carved_pcaps')
+options.tmp_dir = nil
 options.dst_pcap = Time.now.strftime("carved_%s.pcap")
 options.verbose = false
 options.dry_run = false
@@ -78,7 +78,7 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options] time-pivot-point', 30, '
   opts.separator ""
   opts.separator "Default values:"
   opts.separator "  records-around  - #{options.recs_around}"
-  opts.separator "  tmp-dir         - #{options.tmp_dir}"
+  opts.separator "  tmp-dir         - #{options.tmp_dir || 'system tmp dir'}"
   opts.separator "  dst-pcap        - #{options.dst_pcap}"
   opts.separator ""
   opts.separator "time-pivot-point:"
@@ -149,6 +149,7 @@ end
 puts
 print "Press enter to start. "
 $stdin.gets
+puts "Generating #{options.dst_pcap}..."
 begin
   carver.carve_session(options.tmp_dir, options.dst_pcap) 
 rescue RuntimeError => e
