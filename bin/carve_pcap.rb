@@ -15,12 +15,12 @@ include FileUtils
 options = OpenStruct.new
 options.recs_around = 5
 options.tmp_dir = File.join(ENV['HOME'], 'carved_pcaps')
-options.dst_pcap = Time.now.strftime("carved.pcap")
+options.dst_pcap = Time.now.strftime("carved_%s.pcap")
 options.verbose = false
 options.dry_run = false
 options.bpf_filter = nil
 
-opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
+opts = OptionParser.new('Usage: carve_pcap.rb [options] time-pivot-point', 30, ' ') do |opts|
   opts.separator "\nRequired parameters:"
 
   opts.on('-p', '--ip-proto PROTO', %{(R) ip protocol.}) do |arg|
@@ -81,13 +81,15 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options]', 30, ' ') do |opts|
   opts.separator "  tmp-dir         - #{options.tmp_dir}"
   opts.separator "  dst-pcap        - #{options.dst_pcap}"
   opts.separator ""
-
-
+  opts.separator "time-pivot-point:"
+  opts.separator "  Where to look for the session."
+  opts.separator "  Can be epoch-time or anything that Time.parse can handle."
+  opts.separator "  ex: '1367070618', '20:10', '20120402 20:10:17'"
   opts.separator ""
   opts.separator "Examples:"
   opts.separator "  carve_pcap.rb -p tcp -S 10.0.0.1 -s 12345 -D 10.0.0.10 -d 22 1367070618"
   opts.separator "  carve_pcap.rb -r eth0,eth2 -p tcp -S 10.0.0.1 -s 12345 -D 10.0.0.10 -d 22 1367070618"
-  opts.separator "  carve_pcap.rb -f 'host 10.0.0.1 and port 53'"
+  opts.separator "  carve_pcap.rb -f 'host 10.0.0.1 and port 53' 20120402 20:10:17.500144"
   opts.separator ""
 end
 
@@ -126,6 +128,7 @@ def human_time(usec)
   Time.at(usec.to_i).strftime("%Y-%m-%d %T")
 end
 
+printf "Time pivot-point set to: %s\n", Time.at(carver.start_time).strftime("%Y/%m/%d %T")
 printf "Querying between: %s -> %s\n\n", human_time(carver.query_start), human_time(carver.query_end)
 
 sessions = carver.session_find
