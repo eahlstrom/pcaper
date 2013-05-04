@@ -83,7 +83,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
            end
 
   dst_dir = Time.at(pcap.start_time).strftime(options.dst_dir.gsub(/\{device\}/i, device))
-  dst_file = File.join(dst_dir, File.basename(pcap.filename) + ".argus")
+  dst_file = File.expand_path(File.join(dst_dir, File.basename(pcap.filename) + ".argus"))
 
   mkdir_p(dst_dir, fopts) unless File.exist?(dst_dir)
   if File.exist?(dst_file)

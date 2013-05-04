@@ -67,16 +67,14 @@ fopts = {
 
 dev_regx = Regexp.new(options.device_regx)
 Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
+  next if File.stat(pcap_file).size <= 24
+
   if Pcaper::Models::Pcap.pcap_imported?(pcap_file)
     puts "#{pcap_file} already imported" if options.verbose
     next
   end
 
-  device = if dev_regx.match(pcap_file)
-             $~.captures.first
-           else
-             raise "Could not match device with regexp: #{dev_regx.inspect}"
-           end
+  device = dev_regx.match(pcap_file) ? $~.captures.first : ''
 
   capinfo = Pcaper::Capinfo.capinfo(pcap_file)
 
