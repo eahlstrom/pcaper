@@ -1,7 +1,7 @@
 module Pcaper::IPHelpers
 
   def getprotobyname(proto)
-    ip_protocols[proto.downcase] || raise("Cannon resolve proto: #{proto}")
+    ip_protocols[proto.downcase] || raise(ArgumentError, "Cannot resolve proto: #{proto}")
   end
 
   def ip_protocols
@@ -22,7 +22,7 @@ module Pcaper::IPHelpers
     if valid_port?(port)
       return port
     else
-      raise("Invalid port: #{port}")
+      raise ArgumentError, "Invalid port: '#{port}'"
     end
   end
 
@@ -30,7 +30,7 @@ module Pcaper::IPHelpers
     if valid_ipv4?(ip)
       return ip
     else
-      raise("Invalid ipv4 address: #{ip}")
+      raise ArgumentError, "Invalid ipv4 address: '#{ip}'"
     end
   end
 

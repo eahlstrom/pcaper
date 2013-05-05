@@ -28,6 +28,7 @@ module Pcaper
   VERSION = "0.0.1"
   DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
   DB = Sequel.sqlite(Pcaper::CONFIG[:db])
+  WEBDB = Sequel.sqlite(Pcaper::CONFIG[:webdb])
 
   module Models
   end

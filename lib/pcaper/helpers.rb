@@ -4,7 +4,11 @@ module Pcaper::Helpers
     when /\A(\d{10})\Z/
       return str.to_i
     else
-      return Time.parse(str)
+      begin
+        return Time.parse(str)
+      rescue => e
+        raise ArgumentError, e.message
+      end
     end
   end
 end

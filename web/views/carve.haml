@@ -1,0 +1,16 @@
+%table.width-100.small
+  %thead
+    %tr
+      %th{:style => 'width:20%'} Started
+      %th{:style => 'width:20%'} Duration (secs)
+      %th{:style => 'width:20%'} Worker state
+      %th{:style => 'width:40%'} Worker message
+  %tbody
+    %tr
+      %td#sub= human_time @db.submitted
+      %td#dur= (@db.finished.nil? ? Time.now.to_i : @db.finished) - @db.submitted
+      %td#ste= @db.worker_state
+      %td#msg= @db.worker_msg
+
+- if @db.worker_state == 'done'
+  = send_file @db.local_file, :type => 'pcap', :filename => File.basename(@db.local_file)

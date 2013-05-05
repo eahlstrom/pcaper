@@ -1,0 +1,21 @@
+
+%table
+  %thead
+    %tr
+      %th id
+      %th device
+      %th filename
+      %th packets
+      %th size
+      %th duration
+      %th bps
+  %tbody
+    - @pcaps.each do |pcap|
+      %tr
+        %td= pcap.id
+        %td= pcap.device
+        %td{:title => pcap.filename}= File.basename(pcap.filename)
+        %td= pcap.num_packets
+        %td= pcap.filesize
+        %td= pcap.duration
+        %td= pcap.bps

@@ -1,0 +1,35 @@
+
+%form.forms.columnar{:name => 'carve', :method => :get}
+
+  %fieldset
+    %ul
+      %li
+        %label.bold start_time:
+        %input{:name => 'start_time', :type => :text, :value => params[:start_time]}
+
+      %li
+        %label.bold records_around:
+        %input{:name => 'records_around', :type => :text, :value => params[:records_around] || '5'}
+
+      %li
+        %label.bold proto:
+        %input{:name => 'proto', :type => :text, :value => params[:proto]}
+
+      %li
+        %label.bold src:
+        %input{:name => 'src', :type => :text, :value => params[:src]}
+
+      %li
+        %label.bold sport:
+        %input{:name => 'sport', :type => :text, :value => params[:sport]}
+
+      %li
+        %label.bold dst:
+        %input{:name => 'dst', :type => :text, :value => params[:dst]}
+
+      %li
+        %label.bold dport:
+        %input{:name => 'dport', :type => :text, :value => params[:dport]}
+
+      %li.push
+        %input{:type => :submit, :value => 'Submit'}

@@ -5,3 +5,6 @@ argus/eth0
 carved_pcaps/*
 tst.pcap
 carved.pcap
+web/db/web.db
+web/files
+

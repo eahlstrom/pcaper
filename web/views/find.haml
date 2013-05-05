@@ -1,0 +1,48 @@
+- if defined? @sessions
+  %a#toggle_carve_form.gray-light.italic.small
+    toggle-form
+  .row{:style => 'display: none'}
+    = haml :find_form
+- else
+  .row
+    = haml :find_form
+
+- if defined? @carver
+  .row.small
+    Time pivot-point set to:
+    %span.bold= human_time(@carver.start_time) + ","
+    Querying between:
+    %span.bold= human_time(@carver.query_start)
+    and
+    %span.bold= human_time(@carver.query_end)
+
+- if defined? @sessions
+  - if @sessions.empty?
+    No sessions found within this time frame!
+  - else
+    %table.width-100.bordered.small
+      %thead.thead-gray
+        %tr
+          %th Start time
+          %th Duration
+          %th Protocol
+          %th Source
+          %th Destination
+          %th State
+          %th Bytes
+          %th Packets
+      %tbody
+        - @sessions.each do |sess|
+          %tr
+            %td= human_time(sess[:stime])
+            %td= (sess[:ltime].to_i - sess[:stime].to_i).to_s + " Sec"
+            %td= sess[:proto]
+            %td= [ sess[:saddr], sess[:sport] ].join(":")
+            %td= [ sess[:daddr], sess[:dport] ].join(":")
+            %td= sess[:state]
+            %td= sess[:bytes]
+            %td= sess[:pkts]
+
+    %a.btn{:href => '/carve?' + (params.collect{|k,v| "#{k}=#{v}"}).join("&")}
+      Start carve
+
