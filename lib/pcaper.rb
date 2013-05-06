@@ -10,6 +10,8 @@ module Pcaper
     default_config = {
       :db       => '/etc/pcaper/pcaps.db',
       :argusdir => '/opt/pcap/argus/{device}/%Y/%m/%d',
+      :web_db   => '/etc/pcaper/web.db',
+      :web_carve_dir => '/opt/pcaper/webcarve',
     }
     $stderr.puts "Cound not load config file: #{CONFIG_FILE}"
     $stderr.puts "Please generate this file first or specify yours"
@@ -28,7 +30,7 @@ module Pcaper
   VERSION = "0.0.1"
   DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
   DB = Sequel.sqlite(Pcaper::CONFIG[:db])
-  WEBDB = Sequel.sqlite(Pcaper::CONFIG[:webdb])
+  WEBDB = Sequel.sqlite(Pcaper::CONFIG[:web_db])
 
   module Models
   end
