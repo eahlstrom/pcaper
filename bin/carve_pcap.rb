@@ -94,9 +94,10 @@ opts = OptionParser.new('Usage: carve_pcap.rb [options] time-pivot-point', 30, '
 end
 
 begin
+  ARGV << '--help' if ARGV.empty?
   opts.parse!
   unless options.bpf_filter
-    [:proto, :src_host, :src_port].each do |k|
+    [:src_host, :dst_host].each do |k|
       raise OptionParser::InvalidOption, "Required option: #{k.inspect}" if options.send(k).nil?
     end
   end

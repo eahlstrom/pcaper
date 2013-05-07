@@ -34,7 +34,8 @@
       %tbody
         - @sessions.each do |sess|
           %tr
-            %td= human_time(sess[:stime])
+            %td
+              %a{:href => "/find?" + url_serialize(sess)}= human_time(sess[:stime])
             %td= (sess[:ltime].to_i - sess[:stime].to_i).to_s + " Sec"
             %td= sess[:proto]
             %td= [ sess[:saddr], sess[:sport] ].join(":")

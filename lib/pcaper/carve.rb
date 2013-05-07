@@ -17,13 +17,11 @@ class Pcaper::Carve
       puts "Using bpf filter from option. (#{@pcap_filter})" if $DEBUG
       @pcap_filter = opts[:bpf_filter]
     else
-      @proto = verified_protocol(opts[:proto])
+      @proto = verified_protocol(opts[:proto]) if opts[:proto]
       @src_host = verified_ipv4(opts[:src_host])
       @dst_host = verified_ipv4(opts[:dst_host])
-      if @proto == 6 || @proto == 17
-        @src_port = verified_port(opts[:src_port])
-        @dst_port = verified_port(opts[:dst_port])
-      end
+      @src_port = verified_port(opts[:src_port]) if opts[:src_port]
+      @dst_port = verified_port(opts[:dst_port]) if opts[:dst_port]
     end
     @start_time = verified_time(opts[:start_time]).to_i
     @devices = opts[:devices]
@@ -33,11 +31,14 @@ class Pcaper::Carve
 
   def pcap_filter
     return @pcap_filter if @pcap_filter
-    @pcap_filter = sprintf("ip proto %d and host (%s and %s)", proto, src_host, dst_host)
-    if proto == 6 || proto == 17
-     @pcap_filter += sprintf(" and port (%d and %d)", src_port, dst_port)
-    end
-    @pcap_filter
+    @pcap_filter = ""
+    @pcap_filter += "ip proto #{proto} and " if proto
+    @pcap_filter += sprintf("host (%s and %s)", src_host, dst_host)
+    ports = []
+    ports << src_port if src_port
+    ports << dst_port if dst_port
+    @pcap_filter += sprintf(" and port (#{ports.join(' and ')})") unless ports.empty?
+    return @pcap_filter
   end
 
   def session_find
