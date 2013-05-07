@@ -19,7 +19,7 @@ class CarveDatabase
       :submitted    => Time.now.to_i,
       :local_file   => File.join(Pcaper::CONFIG[:web_carve_dir], chksum.to_s + '.pcap'),
       :params       => params.to_json,
-      :worker_state => 'submitted',
+      :worker_state => 'submitted'
     )
   end
 
