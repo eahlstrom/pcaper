@@ -1,7 +1,7 @@
 module Pcaper::IPHelpers
 
   def getprotobyname(proto)
-    ip_protocols[proto.downcase] || raise(ArgumentError, "Cannot resolve proto: #{proto}")
+    ip_protocols[proto.to_s.downcase] || raise(ArgumentError, "Cannot resolve proto: #{proto}")
   end
 
   def ip_protocols
@@ -11,7 +11,7 @@ module Pcaper::IPHelpers
   end
 
   def verified_protocol(proto)
-    if proto.match(/\A\d+$\Z/)
+    if proto.to_s.match(/\A\d+$\Z/)
       proto.to_i
     else
       getprotobyname(proto).to_i

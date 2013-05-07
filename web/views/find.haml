@@ -1,7 +1,7 @@
 - if defined? @sessions
   %a#toggle_carve_form.gray-light.italic.small
     toggle-form
-  .row{:style => 'display: none'}
+  #form_content.row{:style => 'display: none'}
     = haml :find_form
 - else
   .row

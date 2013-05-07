@@ -16,7 +16,7 @@ class CarveDatabase
   def add
     carve.insert(
       :chksum       => chksum,
-      :submitted     => Time.now.to_i,
+      :submitted    => Time.now.to_i,
       :local_file   => File.join(Pcaper::CONFIG[:web_carve_dir], chksum.to_s + '.pcap'),
       :params       => params.to_json,
       :worker_state => 'submitted',
@@ -43,14 +43,15 @@ class CarveDatabase
     row[:local_file]
   end
 
+  def chksum
+    keys = %w{ start_time proto src sport dst dport records_around }
+    Zlib.crc32((params.find_all{|k,v| keys.include?(k)}).join)
+  end
+
   private
     def row
       @row ||= carve.where(:chksum => chksum).first
     end
 
-    def chksum
-      keys = %w{ start_time proto src sport dst dport records_around }
-      Zlib.crc32((params.find_all{|k,v| keys.include?(k)}).join)
-    end
 
 end

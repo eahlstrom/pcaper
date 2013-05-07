@@ -1,16 +1,33 @@
-%table.width-100.small
-  %thead
-    %tr
-      %th{:style => 'width:20%'} Started
-      %th{:style => 'width:20%'} Duration (secs)
-      %th{:style => 'width:20%'} Worker state
-      %th{:style => 'width:40%'} Worker message
-  %tbody
-    %tr
-      %td#sub= human_time @db.submitted
-      %td#dur= (@db.finished.nil? ? Time.now.to_i : @db.finished) - @db.submitted
-      %td#ste= @db.worker_state
-      %td#msg= @db.worker_msg
+#status_table
+  = haml :carve_status_table
 
-- if @db.worker_state == 'done'
-  = send_file @db.local_file, :type => 'pcap', :filename => File.basename(@db.local_file)
+- unless defined? @err
+
+  - if @db.worker_state == 'done'
+    %a.btn{:href => "/download/#{@db.chksum}"} Download
+
+  - elsif @db.worker_state != 'failed'
+    :javascript
+      function interval_monitor(millisecs) {
+        var timer = setInterval(function(){
+          $('div#status_table').load(location.href + " table", function(){
+            var state = $('table#worker_status').data('worker-state');
+            console.log(state);
+            if (state == "done" || state == "failed") {
+              clearInterval(ival);
+              document.location = '/download/#{@db.chksum}';
+            } else {
+              var duration = $('table#worker_status').data('worker-duration');
+              if (duration > 20 && ival == 1) {
+                clearInterval(ival);
+                window.ival = interval_monitor(10000);
+              }
+            }
+          });
+        }, millisecs);
+        return(timer);
+      }
+
+      $(document).ready(function(){
+        window.ival = interval_monitor(1000);
+      });
