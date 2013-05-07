@@ -18,7 +18,7 @@ module WebHelpers
       :src_port   => params['sport'].to_s.empty? ? nil : params['sport'],
       :dst_host   => params['dst'],
       :dst_port   => params['dport'].to_s.empty? ? nil : params['dport'],
-      :records_around => params['records_around'] || 5,
+      :records_around => (params['records_around'] || 5)
     )
   end
 
