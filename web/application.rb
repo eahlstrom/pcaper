@@ -14,7 +14,6 @@ require 'carve_db'
 helpers WebHelpers
 
 configure do
-  set :public_folder, File.dirname(__FILE__) + '/static'
   mime_type :pcap, 'application/vnd.tcpdump.pcap'
 end
 

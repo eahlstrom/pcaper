@@ -13,7 +13,15 @@ On ubuntu:
     $ sudo apt-get install lsof wireshark-common tcpdump
   But you will need to fetch argus from http://qosient.com/argus (version 3 tested)
 
+Ruby required gems:
+  base: sequel, sqlite3 (ubuntu pkgs: ruby-sequel libsqlite3-ruby)
+  web: sinatra, haml, json (ubuntu pkgs: ruby-sinatra ruby-haml ruby-json)
+
 Run:
   bin/import_pcaps.rb   - to import to db and optional move your pcaps to a archive dir.
   bin/generate_argus.rb - to generate argus files based on your pcaps.
   bin/carve_pcap.rb     - to carve out a specific session.
+
+Webui:
+  Create a db:
+  $ sqlite3 db/web.db < web/db/_
