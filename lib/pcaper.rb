@@ -1,9 +1,21 @@
+begin
 require 'sequel'
+rescue LoadError
+  puts "loading rubygmes"
+  require 'rubygems'
+  require 'sequel'
+end
 require 'digest'
 require 'yaml'
 
 module Pcaper
-  CONFIG_FILE = ENV['PCAPER_CONF'] || '/etc/pcaper/config.yml'
+  CONFIG_FILE = if ENV['PCAPER_CONF'] && File.exist?(ENV['PCAPER_CONF'])
+                  ENV['PCAPER_CONF']
+                elsif File.exist?(File.join(ENV['HOME'], '.pcaper', 'config.yml'))
+                  File.join(ENV['HOME'], '.pcaper', 'config.yml')
+                else File.exist?('/etc/pcaper/config.yml')
+                  '/etc/pcaper/config.yml'
+                end
   begin
     CONFIG = YAML::load_file(CONFIG_FILE)
   rescue Errno::ENOENT
@@ -13,7 +25,12 @@ module Pcaper
       :web_db   => '/etc/pcaper/web.db',
       :web_carve_dir => '/opt/pcaper/webcarve',
     }
-    $stderr.puts "Cound not load config file: #{CONFIG_FILE}"
+    $stderr.puts "Cound not load config file"
+    $stderr.puts "Searched:"
+    $stderr.puts " - $PCAPER_CONF"
+    $stderr.puts " - ~/.pcaper/config.yml"
+    $stderr.puts " - /etc/pcaper/config.yml"
+    $stderr.puts ""
     $stderr.puts "Please generate this file first or specify yours"
     $stderr.puts "with the environment variable PCAPER_CONF"
     $stderr.puts
