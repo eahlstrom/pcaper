@@ -78,6 +78,10 @@ class Pcaper::Carve
     end
   end
 
+  def records_found?
+    !records.first.nil?
+  end
+
   def query_start
     records.first.start_time
   end
@@ -90,7 +94,7 @@ class Pcaper::Carve
     def records
       return @records if @records
       @records = precise_match
-      if records_around > 0
+      if !@records.empty? && records_around > 0
         @records += records_before(records_around) - precise_match
         @records += records_after(records_around) - precise_match
       end

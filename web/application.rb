@@ -24,9 +24,13 @@ end
 get '/find' do
   req_params = %w{ start_time src dst }
   params_set = (params.find_all{|k,v|!v.empty?}).collect{|k,v| k}
+  p params_set
   if (req_params - params_set).empty?
     begin
       @carver = carver_for_params(params)
+      unless @carver.records_found?
+        raise ArgumentError, "No db records was found at this time"
+      end
       @sessions = @carver.session_find
     rescue ArgumentError => e
       @err = e.message
@@ -34,6 +38,7 @@ get '/find' do
   else
     @err = "All required fields (#{req_params.join(', ')}) must be set" unless params_set.empty?
   end
+
 
   if request.xhr?
     haml :find_table, :layout => false

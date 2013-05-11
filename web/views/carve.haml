@@ -6,7 +6,7 @@
   - if @db.worker_state == 'done'
     %a.btn{:href => "/download/#{@db.chksum}"} Download
 
-  - elsif @db.worker_state != 'failed'
+  - elsif %w{ processing submitted }.include?(@db.worker_state)
     :javascript
       function interval_monitor(millisecs) {
         var timer = setInterval(function(){

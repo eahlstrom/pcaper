@@ -130,6 +130,11 @@ def human_time(usec)
 end
 
 printf "Time pivot-point set to: %s\n", Time.at(carver.start_time).strftime("%Y/%m/%d %T")
+unless carver.records_found?
+  puts "No db records could be found!"
+  exit 0
+end
+
 printf "Querying between: %s -> %s\n\n", human_time(carver.query_start), human_time(carver.query_end)
 
 sessions = carver.session_find
