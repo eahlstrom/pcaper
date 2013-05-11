@@ -16,15 +16,24 @@ module Pcaper
                 else File.exist?('/etc/pcaper/config.yml')
                   '/etc/pcaper/config.yml'
                 end
+  default_config = {
+    :db             => '/etc/pcaper/pcaps.db',
+    :argusdir       => '/opt/pcap/argus/{device}/%Y/%m/%d',
+    :web_db         => '/etc/pcaper/web.db',
+    :web_carve_dir  => '/opt/pcaper/webcarve',
+    :tcpdump        => '/usr/sbin/tcpdump',
+    :mergecap       => '/usr/bin/mergecap',
+    :ra             => '/usr/local/bin/ra',
+    :racluster      => '/usr/local/bin/racluster',
+  }
   begin
     CONFIG = YAML::load_file(CONFIG_FILE)
+    default_config.keys.each do |key|
+      unless CONFIG.has_key?(key)
+        raise ArgumentError, "Config miss key: #{key.inspect}"
+      end
+    end
   rescue Errno::ENOENT
-    default_config = {
-      :db       => '/etc/pcaper/pcaps.db',
-      :argusdir => '/opt/pcap/argus/{device}/%Y/%m/%d',
-      :web_db   => '/etc/pcaper/web.db',
-      :web_carve_dir => '/opt/pcaper/webcarve',
-    }
     $stderr.puts "Cound not load config file"
     $stderr.puts "Searched:"
     $stderr.puts " - $PCAPER_CONF"
@@ -34,6 +43,14 @@ module Pcaper
     $stderr.puts "Please generate this file first or specify yours"
     $stderr.puts "with the environment variable PCAPER_CONF"
     $stderr.puts
+    $stderr.puts "Example config:"
+    $stderr.puts "-- snipp --"
+    $stderr.puts default_config.to_yaml
+    $stderr.puts "-- snipp --"
+    exit 127
+  rescue ArgumentError => e
+    $stderr.puts e.message
+    $stderr.puts ""
     $stderr.puts "Example config:"
     $stderr.puts "-- snipp --"
     $stderr.puts default_config.to_yaml
