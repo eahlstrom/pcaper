@@ -20,6 +20,8 @@ module Pcaper::Capinfo
       v.to_i
     when /^\d+\.\d+$/
       v.to_f
+    when "(not set)"
+      nil
     else
       v
     end
