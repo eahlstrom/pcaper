@@ -25,7 +25,7 @@ end
 get '/find' do
   req_params = %w{ start_time src dst }
   params_set = (params.find_all{|k,v|!v.empty?}).collect{|k,v| k}
-  p params_set
+  logger.info "params: #{params.inspect}"
   if (req_params - params_set).empty?
     begin
       @carver = carver_for_params(params)
