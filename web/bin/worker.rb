@@ -13,11 +13,9 @@ require 'web_helpers'
 require 'carve_db'
 include WebHelpers
 
-
-log = Logger.new(ARGV[0] || $stdout)
-carve = Pcaper::WEBDB[:carve]
-loop do
-  begin
+class Worker
+  def self.run(log=Logger.new($stdout))
+    carve = Pcaper::WEBDB[:carve]
     carve.where(:worker_state => 'submitted').each do |row|
       log.info "(#{row[:id]}) processing..."
       carve.where(:id => row[:id]).update(:worker_state => 'processing')
@@ -34,10 +32,19 @@ loop do
       log.info "(#{row[:id]}) done! carved pcap: #{row[:local_file]}"
       carve.where(:id => row[:id]).update(:finished => Time.now.to_i, :worker_state => 'done')
     end
-  rescue => e
-    puts "Err! #{e}"
-    next
-  ensure
-    sleep 1
+  end
+end
+
+if __FILE__ == $0
+  log = Logger.new(ARGV[0] || $stdout)
+  loop do
+    begin
+      Worker.run(log)
+    rescue => e
+      puts "Err! #{e}"
+      next
+    ensure
+      sleep 1
+    end
   end
 end

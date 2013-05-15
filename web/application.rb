@@ -10,6 +10,7 @@ require 'haml'
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 require 'web_helpers'
 require 'carve_db'
+require File.expand_path(File.join(File.dirname(__FILE__), 'bin', 'worker'))
 
 helpers WebHelpers
 
@@ -53,6 +54,7 @@ get '/carve' do
     begin
       @carver = carver_for_params(params)
       @db.add
+      Thread.new { Worker.run } unless Pcaper::CONFIG[:standalone_web_workers]
     rescue ArgumentError => e
       @err = e.message
     end
