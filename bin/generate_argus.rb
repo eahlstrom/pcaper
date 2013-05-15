@@ -95,12 +95,25 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
   puts cmd if options.verbose
   unless options.dry_run
     if system(cmd)
-      pcap.argus_file = dst_file
-      pcap.save
-      cmd = %{racluster -M replace -r #{dst_file}}
-      puts cmd if options.verbose
-      system(cmd) unless pcap.num_packets == 0 # racluster seqfaults when no packets are in the file
-      system(%{touch -r #{pcap_file} #{dst_file}})
+      begin
+        retries ||= 3
+        pcap.argus_file = dst_file
+        pcap.save
+        cmd = %{racluster -M replace -r #{dst_file}}
+        puts cmd if options.verbose
+        system(cmd) unless pcap.num_packets == 0 # racluster seqfaults when no packets are in the file
+        system(%{touch -r #{pcap_file} #{dst_file}})
+      rescue Sequel::DatabaseConnectionError => e
+        unless (retries -= 1).zero?
+          puts e.message
+          sleep 1
+          retry
+        end
+      rescue => e
+        $stderr.puts "#{pcap_file} failed! msg: #{e.message}"
+        rm_f(dst_file, fopts)
+        next
+      end
     else
       $stderr.puts "Command failed! (#{cmd})"
     end

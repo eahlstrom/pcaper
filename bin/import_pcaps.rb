@@ -91,12 +91,20 @@ Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
   puts "Adding #{pcap_file} (#{capinfo[:sha1sum]}) to db..." if options.verbose
   unless options.dry_run
     begin
+      retries ||= 3
       pcap = Pcaper::Models::Pcap.new(capinfo)
       pcap.device = device
       pcap.save
-    rescue
-      puts "capinfo: #{capinfo.inspect}"
-      raise
+    rescue Sequel::DatabaseConnectionError => e
+      unless (retries -= 1).zero?
+        puts e.message
+        sleep 1
+        retry
+      end
+    rescue => e
+      mv(capinfo[:filename], File.dirname(pcap_file), fopts) if File.exist?(capinfo[:filename])
+      $stderr.puts "Import failed for pcap_file. Failure msg: '#{e.message}', capinfo: #{capinfo.inspect}"
+      next
     end
   end
   puts if options.verbose
