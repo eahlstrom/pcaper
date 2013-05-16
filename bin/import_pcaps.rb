@@ -67,7 +67,7 @@ fopts = {
 
 dev_regx = Regexp.new(options.device_regx)
 Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
-  puts "Processing #{pcap_file}..." if options.verbose
+  printf "\nProcessing #{pcap_file}...\n" if options.verbose
 
   if Pcaper::Models::Pcap.pcap_imported?(pcap_file)
     puts "#{pcap_file} already imported" if options.verbose
@@ -77,7 +77,10 @@ Pcaper::FindClosedPcaps.files(options.src_dir, options.pcap_glob) do |pcap_file|
   device = dev_regx.match(pcap_file) ? $~.captures.first : ''
 
   capinfo = Pcaper::Capinfo.capinfo(pcap_file)
-  next if capinfo.empty? || capinfo[:num_packets] == 0
+  if capinfo.empty? || capinfo[:num_packets] == 0
+    puts "pcap empty, skipping"
+    next
+  end
 
   if options.dst_dir
     dst_dir = Time.at(capinfo[:start_time].to_i).strftime(options.dst_dir).gsub(/\{device\}/, device)
