@@ -21,6 +21,7 @@ module Pcaper
     :argusdir       => '/opt/pcap/argus/{device}/%Y/%m/%d',
     :web_db         => '/etc/pcaper/web.db',
     :web_carve_dir  => '/opt/pcaper/webcarve',
+    :standalone_web_workers => false,
     :tcpdump        => '/usr/sbin/tcpdump',
     :mergecap       => '/usr/bin/mergecap',
     :ra             => '/usr/local/bin/ra',
