@@ -23,9 +23,27 @@ class Pcaper::FindClosedPcaps
 
   private
     def open_pcap_inodes
+      return @open_pcap_inodes if @open_pcap_inodes
+      if Process.uid == 0
+        return open_pcap_inodes_lsof
+      else
+        return open_pcap_inodes_filestat
+      end
+    end
+
+    def open_pcap_inodes_lsof
       @open_pcap_inodes ||= File.popen("#{Pcaper::CONFIG[:lsof]} -F +d #{dir}").collect do |line|
         $1.to_i if line =~ /^i(\d+)/
       end.compact
+    end
+
+    def open_pcap_inodes_filestat
+      return @open_pcap_inodes if @open_pcap_inodes
+      open_files = Dir.glob(File.join(dir, file_glob)).find_all do |file|
+        stat = File.stat(file)
+        stat.file? && (stat.mtime.to_i >= (Time.now.to_i - 120))
+      end
+      return @open_pcap_inodes = open_files.collect{|f| File.stat(f).ino}
     end
 
 end
