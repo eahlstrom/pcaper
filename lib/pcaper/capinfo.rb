@@ -32,7 +32,7 @@ module Pcaper::Capinfo
     capinfo = {}
     headers = nil
     File.stat(pcap_file).file? || raise(Errno::ENOENT)
-    File.popen("capinfos -Tm -HcslxyuSaeo #{pcap_file}").each_line do |line|
+    File.popen("#{Pcaper::CONFIG[:capinfos]} -Tm -HcslxyuSaeo #{pcap_file}").each_line do |line|
       line.chomp!
       unless headers
         headers = line.split(",")

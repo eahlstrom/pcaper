@@ -91,7 +91,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
     next
   end
 
-  cmd = %{argus -r #{pcap_file} -w #{dst_file} #{options.argus_opts}}
+  cmd = %{#{Pcaper::CONFIG[:argus]} -r #{pcap_file} -w #{dst_file} #{options.argus_opts}}
   puts cmd if options.verbose
   unless options.dry_run
     if system(cmd)
@@ -99,7 +99,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
         retries ||= 3
         pcap.argus_file = dst_file
         pcap.save
-        cmd = %{racluster -M replace -r #{dst_file}}
+        cmd = %{#{Pcaper::CONFIG[:racluster]} -M replace -r #{dst_file}}
         puts cmd if options.verbose
         system(cmd) unless pcap.num_packets == 0 # racluster seqfaults when no packets are in the file
         system(%{touch -r #{pcap_file} #{dst_file}})

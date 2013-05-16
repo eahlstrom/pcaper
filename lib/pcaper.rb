@@ -25,6 +25,9 @@ module Pcaper
     :mergecap       => '/usr/bin/mergecap',
     :ra             => '/usr/local/bin/ra',
     :racluster      => '/usr/local/bin/racluster',
+    :lsof           => '/usr/sbin/lsof',
+    :capinfos       => '/usr/sbin/capinfos',
+    :argus          => '/usr/local/sbin/argus',
   }
   begin
     CONFIG = YAML::load_file(CONFIG_FILE)

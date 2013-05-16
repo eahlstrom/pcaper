@@ -23,7 +23,7 @@ class Pcaper::FindClosedPcaps
 
   private
     def open_pcap_inodes
-      @open_pcap_inodes ||= File.popen("lsof -F +d #{dir}").collect do |line|
+      @open_pcap_inodes ||= File.popen("#{Pcaper::CONFIG[:lsof]} -F +d #{dir}").collect do |line|
         $1.to_i if line =~ /^i(\d+)/
       end.compact
     end
