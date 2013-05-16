@@ -50,13 +50,15 @@ class Pcaper::Carve
 
   def carve_session(tmp_dir, output_file)
     tmp_dir = Dir.mktmpdir('pcaper_', tmp_dir)
+    pcaps_processed = []
     part_files = []
     session_find.each do |sess|
       records_for_session = records_within(sess[:stime], sess[:ltime])
       puts "SQL: #{records_for_session.sql.inspect}" if $DEBUG
       records_for_session.each_with_index do |rec, i|
+        next if pcaps_processed.include?(rec[:filename])
         next if ra([rec[:argus_file]], Pcaper::CONFIG[:ra]).empty?
-        part_file = File.join(tmp_dir, %{part_#{$$}.#{i}})
+        part_file = File.join(tmp_dir, %{part_#{Time.now.to_f}})
         cmd = %{#{Pcaper::CONFIG[:tcpdump]} -w #{part_file} -nr #{rec[:filename]} '#{pcap_filter}'}
         puts cmd if verbose
         if system(cmd)
@@ -64,6 +66,7 @@ class Pcaper::Carve
         else
           raise "'#{cmd}' failed!"
         end
+        pcaps_processed << rec[:filename]
       end
     end
     if part_files.empty?
