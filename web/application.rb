@@ -10,7 +10,25 @@ require 'haml'
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 require 'web_helpers'
 require 'carve_db'
+require 'fileutils'
 require File.expand_path(File.join(File.dirname(__FILE__), 'bin', 'worker'))
+
+begin
+  chkfile = File.join(File.dirname(Pcaper::CONFIG[:web_db]), '.chkperm')
+  File.open(chkfile, 'w') {|fh| fh.puts 'test'}
+  FileUtils.rm_f(chkfile)
+rescue Errno::EACCES
+  raise "web_db must be in a writable directory! (dirname: #{File.dirname(Pcaper::CONFIG[:web_db])})"
+end
+
+begin 
+  FileUtils.mkdir_p(Pcaper::CONFIG[:web_carve_dir]) unless File.exist?(Pcaper::CONFIG[:web_carve_dir])
+  chkfile = File.join(Pcaper::CONFIG[:web_carve_dir], '.chkperm')
+  File.open(chkfile, 'w') {|fh| fh.puts 'test'}
+  FileUtils.rm_f(chkfile)
+rescue Errno::EACCES
+  raise "web_carve_dir must be a writable directory! (dirname: #{Pcaper::CONFIG[:web_carve_dir]})"
+end
 
 helpers WebHelpers
 
@@ -71,7 +89,3 @@ get '/download/:chksum' do
   send_file row[:local_file], :type => 'pcap', :filename => filename
 end
 
-# get '/browse' do
-#   @pcaps = Pcaper::Models::Pcap.limit(30)
-#   haml :browse
-# end
