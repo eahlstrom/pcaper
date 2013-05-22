@@ -37,6 +37,9 @@ module Pcaper
         raise ArgumentError, "Config miss key: #{key.inspect}"
       end
     end
+    [ :tcpdump, :mergecap, :ra, :racluster, :lsof, :capinfos, :argus].each do |cmd|
+      raise ArgumentError,("Could not find cmd: #{cmd} at #{CONFIG[cmd]}") unless File.exist?(CONFIG[cmd])
+    end
   rescue Errno::ENOENT
     $stderr.puts "Cound not load config file"
     $stderr.puts "Searched:"
