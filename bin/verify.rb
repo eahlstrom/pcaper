@@ -15,6 +15,7 @@ include FileUtils
 options = OpenStruct.new
 options.verbose = false
 options.q_scope = nil
+options.check_files = false
 
 opts = OptionParser.new('Usage: verify.rb [options]', 30, ' ') do |opts|
   opts.separator "Options:"
@@ -27,7 +28,11 @@ opts = OptionParser.new('Usage: verify.rb [options]', 30, ' ') do |opts|
     options.q_scope = [ Time.parse(Time.now.strftime("%Y-%m-%d 00:00")), Time.parse(Time.now.strftime("%Y-%m-%d 23:59:59")) ]
   end
 
-  opts.on('-F', '--remove-db-rows', %{(O) Remove db rows without pcap on disc.}) do |bool|
+  opts.on('-f', '--check-files', %{(O) Verify on files on disc.}) do |bool|
+    options.check_files = bool
+  end
+
+  opts.on('-F', '--remove-db-rows', %{(O) Remove db rows without pcap on disc. (implies -f)}) do |bool|
     options.remove_db_rows = bool
   end
 
@@ -42,6 +47,7 @@ opts = OptionParser.new('Usage: verify.rb [options]', 30, ' ') do |opts|
 
   opts.separator ""
   opts.separator "Example:"
+  opts.separator '  verify.rb -vf'
   opts.separator '  verify.rb -s "2013-04-19 10:00..2013-04-20 00:00"'
   opts.separator ""
 end
@@ -74,32 +80,34 @@ if options.q_scope
   scope = scope.where(:start_time => (options.q_scope[0].to_i)..(options.q_scope[1].to_i))
 end
 
-0.step(scope.count, limit) do |offset|
-  scope.limit(limit, offset).each do |r|
-    # pcap checks
-    if r[:filename] && File.exist?(r[:filename])
-      if `file #{r[:filename]}`.scan(/capture file/).empty?
-        out r[:id], "invalid file type: #{r[:filename]}"
+if options.check_files
+  0.step(scope.count, limit) do |offset|
+    scope.limit(limit, offset).each do |r|
+      # pcap checks
+      if r[:filename] && File.exist?(r[:filename])
+        if `file #{r[:filename]}`.scan(/capture file/).empty?
+          out r[:id], "invalid file type: #{r[:filename]}"
+        end
+        on_disk_size = File.stat(r[:filename]).size
+        total_size_on_disc += on_disk_size
+        unless r[:filesize] == on_disk_size
+          out r[:id], "filesize(#{on_disk_size}) != db filesize(#{r[:filesize]}): #{r[:filename]}"
+        end
+      else
+        out r[:id], "No file: #{r[:filename]}"
+        if options.remove_db_rows
+          Pcaper::Models::Pcap.where(:id => r[:id]).delete unless options.dry_run
+        end
       end
-      on_disk_size = File.stat(r[:filename]).size
-      total_size_on_disc += on_disk_size
-      unless r[:filesize] == on_disk_size
-        out r[:id], "filesize(#{on_disk_size}) != db filesize(#{r[:filesize]}): #{r[:filename]}"
+      
+      # argus checks
+      if r[:argus_file] && File.exist?(r[:argus_file])
+        if `file #{r[:argus_file]}`.scan(/DBase 3 data file/).empty?
+          out r[:id], "invalid file type: #{r[:argus_file]}"
+        end
+      else
+        out r[:id], "No file: #{r[:argus_file]}"
       end
-    else
-      out r[:id], "No file: #{r[:filename]}"
-      if options.remove_db_rows
-        Pcaper::Models::Pcap.where(:id => r[:id]).delete unless options.dry_run
-      end
-    end
-    
-    # argus checks
-    if r[:argus_file] && File.exist?(r[:argus_file])
-      if `file #{r[:argus_file]}`.scan(/DBase 3 data file/).empty?
-        out r[:id], "invalid file type: #{r[:argus_file]}"
-      end
-    else
-      out r[:id], "No file: #{r[:argus_file]}"
     end
   end
 end
@@ -112,7 +120,7 @@ end
 printf "  Total records       - %s\n", scope.count
 if scope.count > 0
   printf "  Total size (db)     - %.02f GB (%d bytes)\n", scope.sum(:filesize).to_f / 1024 / 1024 / 1024, scope.sum(:filesize)
-  printf "  True size on disc   - %.02f GB (%d bytes)\n", total_size_on_disc.to_f / 1024 / 1024 / 1024, total_size_on_disc
+  printf "  True size on disc   - %.02f GB (%d bytes)\n", total_size_on_disc.to_f / 1024 / 1024 / 1024, total_size_on_disc if options.check_files
   printf "  First packet seen   - %s\n", epoch2human(scope.min(:start_time))
   printf "  Last packet seen    - %s\n", epoch2human(scope.max(:end_time))
 end
