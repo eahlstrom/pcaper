@@ -70,7 +70,7 @@ fopts = {
   :noop => options.dry_run,
 }
 
-scope = Pcaper::Models::Pcap.select(:id, :start_time, :filename, :filesize, :argus_file).exclude(:filename => nil).order(:start_time.desc)
+scope = Pcaper::Models::Pcap.select(:id, :start_time, :filename, :filesize, :argus_file).exclude(:filename => nil).order(:start_time)
 reclaimed_bytes = 0
 0.step(Pcaper::Models::Pcap.count, 10) do |offset|
   last_filesize = 0
