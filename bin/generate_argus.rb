@@ -76,11 +76,7 @@ Pcaper::Models::Pcap.where(:argus_file => nil).order(:start_time).each do |pcap|
   end
   puts "Processing file: #{pcap_file}..." if options.verbose
 
-  device = if dev_regx.match(pcap_file)
-             $~.captures.first
-           else
-             raise "Could not match device with regexp: #{dev_regx.inspect}"
-           end
+  device = dev_regx.match(pcap_file) ? $~.captures.first : ''
 
   dst_dir = Time.at(pcap.start_time).strftime(options.dst_dir.gsub(/\{device\}/i, device))
   dst_file = File.expand_path(File.join(dst_dir, File.basename(pcap.filename) + ".argus"))
