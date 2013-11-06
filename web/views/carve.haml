@@ -13,9 +13,11 @@
           $('div#status_table').load(location.href + " table", function(){
             var state = $('table#worker_status').data('worker-state');
             console.log(state);
-            if (state == "done" || state == "failed") {
+            if (state == "done") {
               clearInterval(ival);
               document.location = '/download/#{@db.chksum}';
+            } else if (state == "failed") {
+              clearInterval(ival);
             } else {
               var duration = $('table#worker_status').data('worker-duration');
               if (duration > 20 && ival == 1) {
