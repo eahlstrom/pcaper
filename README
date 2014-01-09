@@ -9,12 +9,12 @@ Make sure you have these files in your $PATH:
   argus, ra, racluster  (version 3.x of argus bundle)
 
 On ubuntu:
-  These packages works from the default repo:
-    $ sudo apt-get install lsof wireshark-common tcpdump
+  These packages works from the default repo: (ubuntu 12.04)
+    $ sudo apt-get install ruby1.9.3 lsof wireshark-common tcpdump
   But you will need to fetch argus from http://qosient.com/argus (version 3 tested)
 
 Ruby required gems:
-  base: sequel, sqlite3 (ubuntu pkgs: ruby-sequel libsqlite3-ruby)
+  base: sequel, sqlite3 (ubuntu pkgs: ruby-sequel libsqlite3-ruby sqlite3)
   web: sinatra, haml, json (ubuntu pkgs: ruby-sinatra ruby-haml ruby-json)
 
 Run:
