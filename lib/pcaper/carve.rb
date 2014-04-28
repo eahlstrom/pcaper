@@ -157,8 +157,8 @@ class Pcaper::Carve
     end
 
     def ra(argus_files, racmd = Pcaper::CONFIG[:racluster])
-      columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts"
-      cmd = %{#{racmd} -F #{rarc_file} -c, -nnnuzs #{columns} -r \\\n}
+      columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts,suser,duser"
+      cmd = %{#{racmd} -F #{rarc_file} -c, -M printer=encode64 -nnnuzs #{columns} -r \\\n}
       argus_files.each do |argus_file|
         cmd += %{ #{argus_file} \\\n}
       end

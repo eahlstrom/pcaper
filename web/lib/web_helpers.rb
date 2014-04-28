@@ -1,4 +1,5 @@
 require 'digest'
+require 'base64'
 
 module WebHelpers
 
@@ -24,6 +25,32 @@ module WebHelpers
 
   def url_serialize(sess)
     sprintf("start_time=%s&records_around=%s&proto=%s&src=%s&sport=%s&dst=%s&dport=%s", sess[:stime], params[:records_around], sess[:proto], sess[:saddr], sess[:sport], sess[:daddr], sess[:dport])
+  end
+
+  def asciify(str)
+    str.gsub(/[^[:print:]]/, '.')
+  end
+
+  def decode_userdata(ud)
+    ud = ud.to_s
+    if ud =~ /(s|d)\[(\d+)\]=(.*)/
+      return(asciify(Base64.decode64($3)))
+    else
+      return ud
+    end
+  end
+
+  def humanize_bytes(bytes)
+    bytes = bytes.to_i
+    if bytes >= 1_000_000_000
+      return sprintf("%.02f GB", bytes / 1024.0 / 1024.0 / 1024.0)
+    elsif bytes >= 1_000_000
+      return sprintf("%.02f MB", bytes / 1024.0 / 1024.0)
+    elsif bytes >= 1_000
+      return sprintf("%.02f KB", bytes / 1024.0)
+    else
+      return bytes
+    end
   end
 
 end
