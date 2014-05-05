@@ -123,7 +123,7 @@ class Pcaper::Carve
       device_scope.
         where("start_time < ?", start_time).
         select(:id, :start_time, :end_time, :filename, :argus_file).
-        order(Sequel.desc(:start_time)).
+        order(:start_time.desc).
         limit(limit+1).
         collect do |rec|
           rec 

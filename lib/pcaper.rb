@@ -7,6 +7,7 @@ rescue LoadError
 end
 require 'digest'
 require 'yaml'
+Sequel.extension(:core_extensions) # needed for .order(:start_time.desc)
 
 module Pcaper
   CONFIG_FILE = if ENV['PCAPER_CONF'] && File.exist?(ENV['PCAPER_CONF'])
