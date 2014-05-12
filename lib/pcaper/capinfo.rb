@@ -20,6 +20,8 @@ module Pcaper::Capinfo
       v.to_i
     when /^\d+\.\d+$/
       v.to_f
+    when /^\d+,\d+$/
+      v.sub(/,/,'.').to_f
     when "(not set)"
       nil
     else
@@ -32,13 +34,13 @@ module Pcaper::Capinfo
     capinfo = {}
     headers = nil
     File.stat(pcap_file).file? || raise(Errno::ENOENT)
-    File.popen("#{Pcaper::CONFIG[:capinfos]} -Tm -HcslxyuSaeo #{pcap_file}").each_line do |line|
+    File.popen("#{Pcaper::CONFIG[:capinfos]} -TB -HcslxyuSaeo #{pcap_file}").each_line do |line|
       line.chomp!
       unless headers
-        headers = line.split(",")
+        headers = line.split("\t")
         next
       end
-      headers.zip(line.split(",")).each do |k,v|
+      headers.zip(line.split("\t")).each do |k,v|
         colname = HEADER_MAP[k]
         capinfo[colname] = instantiate_value(v) if colname
       end
