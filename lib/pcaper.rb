@@ -10,13 +10,16 @@ require 'yaml'
 Sequel.extension(:core_extensions) # needed for .order(:start_time.desc)
 
 module Pcaper
-  CONFIG_FILE = if ENV['PCAPER_CONF'] && File.exist?(ENV['PCAPER_CONF'])
-                  ENV['PCAPER_CONF']
-                elsif File.exist?(File.join(ENV['HOME'], '.pcaper', 'config.yml'))
-                  File.join(ENV['HOME'], '.pcaper', 'config.yml')
-                else File.exist?('/etc/pcaper/config.yml')
-                  '/etc/pcaper/config.yml'
-                end
+  unless defined?(CONFIG_FILE)
+    if ENV['PCAPER_CONF'] && File.exist?(ENV['PCAPER_CONF'])
+      CONFIG_FILE = ENV['PCAPER_CONF']
+    elsif File.exist?(File.join(ENV['HOME'], '.pcaper', 'config.yml'))
+      CONFIG_FILE = File.join(ENV['HOME'], '.pcaper', 'config.yml')
+    else File.exist?('/etc/pcaper/config.yml')
+      CONFIG_FILE = '/etc/pcaper/config.yml'
+    end
+  end
+
   default_config = {
     :db             => '/etc/pcaper/pcaps.db',
     :argusdir       => '/opt/pcap/argus/{device}/%Y/%m/%d',
@@ -32,7 +35,7 @@ module Pcaper
     :argus          => '/usr/local/sbin/argus',
   }
   begin
-    CONFIG = YAML::load_file(CONFIG_FILE)
+    CONFIG = YAML::load_file(CONFIG_FILE) unless defined?(CONFIG)
     default_config.keys.each do |key|
       unless CONFIG.has_key?(key)
         raise ArgumentError, "Config miss key: #{key.inspect}"
@@ -70,9 +73,9 @@ end
 
 module Pcaper
   VERSION = "0.0.1"
-  DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-  DB = Sequel.sqlite(Pcaper::CONFIG[:db])
-  WEBDB = Sequel.sqlite(Pcaper::CONFIG[:web_db])
+  DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))   unless defined?(DIR)
+  DB = Sequel.sqlite(Pcaper::CONFIG[:db])                           unless defined?(DB)
+  WEBDB = Sequel.sqlite(Pcaper::CONFIG[:web_db])                    unless defined?(WEBDB)
 
   module Models
   end
