@@ -62,9 +62,10 @@ class TestCarve < MiniTest::Unit::TestCase
       :dport  => "22",
       :bytes  => "4682",
       :pkts   => "25",
-      :suser  =>  "s[100]=SSH-2.0-OpenSSH_5.9p1 Debian-5ubuntu1.1.........._..E....he........ecdh-sha2-nistp256",
-      :duser  => "ecdh-sha2-nist"
+      :suser  => "s[136]=U1NILTIuMC1PcGVuU1NIXzUuOXAxIERlYmlhbi01dWJ1bnR1MS4xDQoAAAT0CBQJkF+xGUXu8n+saGWaBvG9AAAAt2VjZGgtc2hhMi1uaXN0cDI1NixlY2RoLXNoYTItbmlzdA==",
+      :duser  => "d[136]=U1NILTEuOTktT3BlblNTSF8zLjlwMQoAAAJ8CxQ43XcfGVcnEQ1T/3uWCqyBAAAAWWRpZmZpZS1oZWxsbWFuLWdyb3VwLWV4Y2hhbmdlLXNoYTEsZGlmZmllLWhlbGxtYW4tZw=="
     }], carver.session_find
+
   end
 
   def test_find_session_by_bpf
