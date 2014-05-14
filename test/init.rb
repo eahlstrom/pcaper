@@ -2,6 +2,8 @@ require 'minitest/autorun'
 require 'minitest/unit'
 require 'minitest/pride'
 require 'fileutils'
+require 'tempfile'
+require 'digest'
 require 'pp'
 
 def pcaper_home
@@ -37,6 +39,21 @@ def create_pcaps_db
   end
 end
 create_pcaps_db
+
+def capture_output(io=STDERR)
+  backup_io = io.dup
+  output = ""
+  begin
+    Tempfile.open("captured_stderr") do |f|
+      io.reopen(f)
+      yield
+      f.rewind
+      f.read
+    end
+  ensure
+    io.reopen backup_io
+  end
+end
 
 module Pcaper
   CONFIG_FILE = :skip
