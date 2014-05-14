@@ -18,7 +18,7 @@ class TestCarve < MiniTest::Unit::TestCase
       :devices    => nil,
       :verbose    => false,
     )
-    assert_equal carver.pcap_filter, "ip proto 6 and host (192.168.0.1 and 192.168.0.2) and port (35594 and 22)"
+    assert_equal "ip proto 6 and host (192.168.0.1 and 192.168.0.2) and port (35594 and 22)", carver.pcap_filter
   end
 
   def test_should_use_raw_bfp_if_requested
@@ -51,7 +51,7 @@ class TestCarve < MiniTest::Unit::TestCase
       :devices    => nil,
       :verbose    => false,
     )
-    assert_equal carver.session_find, [{
+    assert_equal [{
       :stime  => "1385892926",
       :ltime  => "1385892928",
       :state  => "sSE",
@@ -64,7 +64,7 @@ class TestCarve < MiniTest::Unit::TestCase
       :pkts   => "25",
       :suser  =>  "s[100]=SSH-2.0-OpenSSH_5.9p1 Debian-5ubuntu1.1.........._..E....he........ecdh-sha2-nistp256",
       :duser  => "ecdh-sha2-nist"
-    }]
+    }], carver.session_find
   end
 
   def test_find_session_by_bpf
@@ -80,7 +80,7 @@ class TestCarve < MiniTest::Unit::TestCase
       :devices    => nil,
       :verbose    => false,
     )
-    assert_equal carver.session_find, [{
+    assert_equal [{
       :stime  => "1385892942",
       :ltime  => "1385892942",
       :state  => "sR",
@@ -93,7 +93,7 @@ class TestCarve < MiniTest::Unit::TestCase
       :pkts   => "2",
       :suser  => nil,
       :duser  => nil
-    }]
+    }], carver.session_find
   end
 
   def test_should_carve_out_session
