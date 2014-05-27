@@ -15,6 +15,7 @@ class TestExternalCommands < MiniTest::Unit::TestCase
     Pcaper::CONFIG[:config_ver] = 1
     Pcaper::CONFIG[:command_options][:capinfos] = "-ARGS"
     assert_equal fixture_join('bin/capinfos') + " -ARGS", ext_capinfos
+    Pcaper::CONFIG[:command_options].delete(:capinfos)
   end
 
   def test_command_and_args_for_old_config
@@ -22,6 +23,7 @@ class TestExternalCommands < MiniTest::Unit::TestCase
     Pcaper::CONFIG[:capinfos] = "path_to_capinfos"
     assert_equal "path_to_capinfos", ext_capinfos
     Pcaper::CONFIG.delete(:capinfos)
+    Pcaper::CONFIG[:config_ver] = 1
   end
 
 end
