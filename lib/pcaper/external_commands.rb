@@ -1,7 +1,12 @@
 module Pcaper::ExternalCommands
 
-  def method_missing(*args)
-    command_and_args_for(args[0])
+  def method_missing(method, *args, &block)
+    if method.to_s =~ /^ext_/
+      cmdkey = method.to_s.sub(/^ext_/,'').to_sym
+      command_and_args_for(cmdkey)
+    else
+      super
+    end
   end
 
   def command_and_args_for(cmdkey)
