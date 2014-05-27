@@ -15,6 +15,31 @@ def fixture_join(*path)
 end
 
 TESTBED_CONFIG = {
+  :config_ver   => 1,
+  :db           =>fixture_join('pcaps.db'),
+  :directories  => {
+    :argus  => fixture_join('argus/{device}/%Y/%m/%d'),
+  },
+  :web=>{
+    :web_db         => fixture_join('web.db'),
+    :web_carve_dir  => fixture_join('webcarve'),
+    :standalone_web_workers=>false
+  },
+  :commands=> {
+    :tcpdump    => fixture_join('bin/tcpdump'),
+    :mergecap   => fixture_join('bin/mergecap'),
+    :ra         => fixture_join('bin/ra'),
+    :racluster  => fixture_join('bin/racluster'),
+    :lsof       => fixture_join('bin/lsof'),
+    :capinfos   => fixture_join('bin/capinfos'),
+    :argus      => fixture_join('bin/argus'),
+  },
+  :command_options=>{
+    :argus  => nil,
+  }
+}
+
+TESTBED_CONFIG_OLD = {
   :db             => fixture_join('pcaps.db'),
   :argusdir       => fixture_join('argus/{device}/%Y/%m/%d'),
   :web_db         => fixture_join('web.db'),

@@ -1,30 +1,27 @@
 require_relative 'init'
 
-
 class TestExternalCommands < MiniTest::Unit::TestCase
-
-  def test_racluster_ip_and_ports
-    columns = %{stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts}
-    argus_file = fixture_join('argus/dump_00003_20131201111526.pcap.argus')
-    rarc = "#{pcaper_home}/lib/pcaper/.rarc"
-    cmd = %{#{Pcaper::CONFIG[:racluster]} -F #{rarc} -c, -M printer=encode64 -nnnuzs #{columns} -r #{argus_file}}
-    assert_equal "1385892926,1385892928,E,tcp,192.168.0.1,35594,192.168.0.2,22,916,10\n", `#{cmd}`
+  def setup
+    extend Pcaper::ExternalCommands
   end
 
-  def test_racluster_suser_encode64_printer
-    columns = %{suser}
-    argus_file = fixture_join('argus/dump_00003_20131201111526.pcap.argus')
-    rarc = "#{pcaper_home}/lib/pcaper/.rarc"
-    cmd = %{#{Pcaper::CONFIG[:racluster]} -F #{rarc} -c, -M printer=encode64 -nnnuzs #{columns} -r #{argus_file}}
-    assert_equal "s[136]=AAAADAoVAAAAAAAAAAAAAA87aPXyZTwbmGSH3n4y2zJj3WjwQe8QZ+1UjKNICe5m8WESiDnPpEEal8EVQE54KdCZCc1uqRVY6LthWYxxotTSwRfhvk5sJqrIYLq+hxmD6NUSag==\n", `#{cmd}`
+  def test_command_and_args_for_v1_without_args
+    Pcaper::CONFIG[:config_ver] = 1
+    Pcaper::CONFIG[:command_options].delete(:capinfos)
+    assert_equal fixture_join('bin/capinfos'), capinfos
   end
 
-  def test_racluster_full
-    columns = %{stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts,suser,duser}
-    argus_file = fixture_join('argus/dump_00003_20131201111526.pcap.argus')
-    rarc = "#{pcaper_home}/lib/pcaper/.rarc"
-    cmd = %{#{Pcaper::CONFIG[:racluster]} -F #{rarc} -c, -M printer=encode64 -nnnuzs #{columns} -r #{argus_file}}
-    assert_equal "1385892926,1385892928,E,tcp,192.168.0.1,35594,192.168.0.2,22,916,10,s[136]=AAAADAoVAAAAAAAAAAAAAA87aPXyZTwbmGSH3n4y2zJj3WjwQe8QZ+1UjKNICe5m8WESiDnPpEEal8EVQE54KdCZCc1uqRVY6LthWYxxotTSwRfhvk5sJqrIYLq+hxmD6NUSag==,d[136]=P1ui8BLitizlXZhLbgTGC6mjM0NsFKBXc/N/698HCvN3qS8s1IVPEhmi5JpjFC2koREx8FlxoEpVRdBptmaK1B7CKE5c8PpROt9jqKiX2apICrqMyN5kQWD9T80Cvxm4bEWGxw==\n", `#{cmd}`
+  def test_command_and_args_for_v1_with_args
+    Pcaper::CONFIG[:config_ver] = 1
+    Pcaper::CONFIG[:command_options][:capinfos] = "-ARGS"
+    assert_equal fixture_join('bin/capinfos') + " -ARGS", capinfos
+  end
+
+  def test_command_and_args_for_old_config
+    Pcaper::CONFIG.delete(:config_ver)
+    Pcaper::CONFIG[:capinfos] = "path_to_capinfos"
+    assert_equal "path_to_capinfos", capinfos
+    Pcaper::CONFIG.delete(:capinfos)
   end
 
 end

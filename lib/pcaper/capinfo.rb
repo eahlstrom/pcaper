@@ -1,5 +1,6 @@
 
 module Pcaper::Capinfo
+  extend Pcaper::ExternalCommands
 
   HEADER_MAP = {
     "File name"                         => :filename,
@@ -34,7 +35,7 @@ module Pcaper::Capinfo
     capinfo = {}
     headers = nil
     File.stat(pcap_file).file? || raise(Errno::ENOENT)
-    File.popen("#{Pcaper::CONFIG[:capinfos]} -TB -HcslxyuSaeo #{pcap_file}").each_line do |line|
+    File.popen("#{capinfos} -TB -HcslxyuSaeo #{pcap_file}").each_line do |line|
       line.chomp!
       unless headers
         headers = line.split("\t")
