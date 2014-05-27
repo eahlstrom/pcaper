@@ -4,6 +4,7 @@ require 'tmpdir'
 class Pcaper::Carve
   include Pcaper::IPHelpers
   include Pcaper::Helpers
+  include Pcaper::ExternalCommands
 
   attr_reader :start_time, :proto, :src_host, :src_port, :dst_host, :dst_port, :devices, :records_around
   attr_reader :verbose
@@ -27,7 +28,6 @@ class Pcaper::Carve
     @devices = opts[:devices]
     @records_around = opts[:records_around].to_i
     @verbose = $DEBUG || !!opts[:verbose]
-    verify_external_programs
   end
 
   def pcap_filter
@@ -57,9 +57,9 @@ class Pcaper::Carve
       puts "SQL: #{records_for_session.sql.inspect}" if $DEBUG
       records_for_session.each_with_index do |rec, i|
         next if pcaps_processed.include?(rec[:filename])
-        next if ra([rec[:argus_file]], Pcaper::CONFIG[:ra]).empty?
+        next if ra([rec[:argus_file]], ext_ra).empty?
         part_file = File.join(tmp_dir, %{part_#{Time.now.to_f}})
-        cmd = %{#{Pcaper::CONFIG[:tcpdump]} -w #{part_file} -nr #{rec[:filename]} '#{pcap_filter}'}
+        cmd = %{#{ext_tcpdump} -w #{part_file} -nr #{rec[:filename]} '#{pcap_filter}'}
         puts cmd if verbose
         if system(cmd)
           part_files << part_file
@@ -72,7 +72,7 @@ class Pcaper::Carve
     if part_files.empty?
       raise "No part files were produced! This must be a bug!"
     else
-      cmd = %{#{Pcaper::CONFIG[:mergecap]} -w #{output_file} #{part_files.join(" ")}}
+      cmd = %{#{ext_mergecap} -w #{output_file} #{part_files.join(" ")}}
       puts cmd if verbose
       if system(cmd)
         FileUtils.rm_rf(tmp_dir, :verbose => $DEBUG || verbose)
@@ -156,7 +156,7 @@ class Pcaper::Carve
       end
     end
 
-    def ra(argus_files, racmd = Pcaper::CONFIG[:racluster])
+    def ra(argus_files, racmd = ext_racluster)
       columns = "stime,ltime,state,proto,saddr,sport,daddr,dport,bytes,pkts,suser,duser"
       cmd = %{#{racmd} -F #{rarc_file} -c, -M printer=encode64 -nnnuzs #{columns} -r \\\n}
       argus_files.each do |argus_file|
