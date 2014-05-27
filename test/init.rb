@@ -35,7 +35,8 @@ TESTBED_CONFIG = {
     :argus      => fixture_join('bin/argus'),
   },
   :command_options=>{
-    :argus  => nil,
+    :argus    => nil,
+    :mergecap => '-F pcap',
   }
 }
 
