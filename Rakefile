@@ -1,6 +1,7 @@
 require 'rake/testtask'
+task :default => :test
 
-Rake::TestTask.new('test:all') do |t|
+Rake::TestTask.new('test') do |t|
   t.pattern = "test/test_*.rb"
 end
 
