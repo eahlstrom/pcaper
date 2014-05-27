@@ -116,7 +116,7 @@ class TestCarve < MiniTest::Unit::TestCase
     end
     assert File.exist?(pcap_file)
     if File.read(pcap_file, 4).unpack("H*").first != 'd4c3b2a1'
-      $stderr.puts "WARNING: generated file was not in libpcap format" # check mergecap -F
+      $stderr.puts "WARNING: generated file was not in libpcap format (check mergecap -F)."
     else
       assert_equal '544c26e7c0789142099d5c410b72e569', Digest::MD5.file(pcap_file).to_s
     end
