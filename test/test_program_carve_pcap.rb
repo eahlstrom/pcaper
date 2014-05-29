@@ -3,7 +3,7 @@ require 'stringio'
 require 'fileutils'
 
 
-class TestProgramCarve < MiniTest::Unit::TestCase
+class TestProgramCarvePcap < MiniTest::Unit::TestCase
   def setup
     @fixture_tmpdir = fixture_join('tmp')
     unless defined? @config_file
