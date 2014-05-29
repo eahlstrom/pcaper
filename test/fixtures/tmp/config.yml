@@ -1,0 +1,13 @@
+---
+:db: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/pcaps.db
+:argusdir: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/argus/{device}/%Y/%m/%d
+:web_db: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/web.db
+:web_carve_dir: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/webcarve
+:standalone_web_workers: false
+:tcpdump: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/tcpdump
+:mergecap: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/mergecap
+:ra: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/ra
+:racluster: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/racluster
+:lsof: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/lsof
+:capinfos: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/capinfos
+:argus: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/bin/argus

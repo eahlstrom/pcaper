@@ -6,11 +6,6 @@ class TestPcaperInit < MiniTest::Unit::TestCase
     assert_equal [:pcaps], Pcaper::DB.tables
   end
 
-  def test_this_testbeds_webdb
-    skip
-    assert_equal [:carve], Pcaper::WEBDB.tables
-  end
-
   def test_that_testbed_has_all_the_files_in_db
     Dir.glob(fixture_join('pcaps', '*.pcap')).each do |pcap|
       assert Pcaper::Models::Pcap.pcap_imported?(pcap)
