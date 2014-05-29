@@ -25,7 +25,6 @@ class TestProgramCarvePcap < MiniTest::Unit::TestCase
     system(cmd)
     pkts = `tcpdump -qnr test/fixtures/tmp/carved.pcap 2>/dev/null  | wc -l`.chomp.to_i
     assert_equal 25, pkts
-  ensure
     if File.exist?(carved_file) && ENV['test_dont_delete'].nil?
       FileUtils.rm_f(carved_file)
     end

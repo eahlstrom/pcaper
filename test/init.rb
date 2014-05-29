@@ -29,16 +29,18 @@ TESTBED_CONFIG = {
   :argus          => fixture_join('bin/argus'),
 }
 
-def create_pcaps_db
+def create_pcaps_db(insert_file)
   create_table = File.read(File.join(pcaper_home, 'db', '_pcaps.db.dump'))
-  insert = File.read(fixture_join('skel', 'pcaps.db.sql')).gsub(/__PCAPER_HOME__/, pcaper_home)
+  if insert_file
+    insert = File.read(insert_file).gsub(/__PCAPER_HOME__/, pcaper_home)
+  end
   FileUtils.rm_f(TESTBED_CONFIG[:db]) if File.exist?(TESTBED_CONFIG[:db])  
   File.popen("sqlite3 #{TESTBED_CONFIG[:db]}", 'w') do |sqlite|
     sqlite.write(create_table)
-    sqlite.write(insert)
+    sqlite.write(insert) if insert_file
   end
 end
-create_pcaps_db
+create_pcaps_db(fixture_join('skel/fully_populated.sql'))
 
 def capture_output(io=STDERR)
   backup_io = io.dup
