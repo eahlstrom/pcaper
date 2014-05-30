@@ -36,6 +36,7 @@ Sequel::Model.db = Pcaper::DB
 require 'pcaper/helpers'
 require 'pcaper/external_commands'
 require 'pcaper/ip_helpers'
+require 'pcaper/config'
 require 'pcaper/capinfo'
 require 'pcaper/find_closed_pcaps'
 require 'pcaper/models/pcap'
