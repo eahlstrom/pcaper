@@ -21,12 +21,4 @@ module Pcaper::Helpers
   end
   private :parse_time
 
-  def verify_external_programs
-    [ :tcpdump, :mergecap, :ra, :racluster ].each do |cmd|
-      unless File.exist?(Pcaper::CONFIG[cmd])
-        raise "Cannot find external #{cmd}: #{Pcaper::CONFIG[cmd]}"
-      end
-    end
-  end
-
 end
