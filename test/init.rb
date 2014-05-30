@@ -65,8 +65,11 @@ def create_pcaps_db(insert_file)
     sqlite.write(create_table)
     sqlite.write(insert) if insert_file
   end
+  # need to reload Sequel after db file changed
+  Pcaper::DB.disconnect
+  Pcaper::DB.connect(TESTBED_CONFIG[:db])
+  Pcaper::Models::Pcap.set_dataset(Pcaper::DB[:pcaps])
 end
-create_pcaps_db(fixture_join('skel/fully_populated.sql'))
 
 def capture_output(io=STDERR)
   backup_io = io.dup

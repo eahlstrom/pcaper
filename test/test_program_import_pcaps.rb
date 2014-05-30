@@ -10,7 +10,7 @@ def num_rows_in_db
   return rows
 end
 
-class TestProgramCarvePcap < MiniTest::Unit::TestCase
+class TestProgramImportPcaps < MiniTest::Unit::TestCase
   def setup
     @fixture_tmpdir = fixture_join('tmp')
     unless defined? @config_file
