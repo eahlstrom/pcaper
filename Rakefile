@@ -20,3 +20,6 @@ namespace :test do
   end
  
 end
+task :test do
+  Rake::Task['test:all'].invoke
+end

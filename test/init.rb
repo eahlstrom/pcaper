@@ -4,6 +4,7 @@ require 'minitest/pride'
 require 'fileutils'
 require 'tempfile'
 require 'digest'
+require 'debugger'
 require 'pp'
 
 def pcaper_home
@@ -15,7 +16,7 @@ def fixture_join(*path)
 end
 
 TESTBED_CONFIG = {
-  :db             => fixture_join('pcaps.db'),
+  :db             => fixture_join('tmp/pcaps.db'),
   :argusdir       => fixture_join('argus/{device}/%Y/%m/%d'),
   :web_db         => fixture_join('web.db'),
   :web_carve_dir  => fixture_join('webcarve'),
@@ -43,6 +44,14 @@ def create_pcaps_db(insert_file)
   Pcaper::DB.disconnect
   Pcaper::DB.connect(TESTBED_CONFIG[:db])
   Pcaper::Models::Pcap.set_dataset(Pcaper::DB[:pcaps])
+end
+
+def create_config_file
+  config_file = File.join(fixture_join('tmp'), 'config.yml')
+  dir = File.dirname(config_file)
+  FileUtils.mkdir_p(dir) unless File.exist?(dir)
+  File.open(config_file, 'w'){|fh| fh.print(TESTBED_CONFIG.to_yaml)}
+  return config_file
 end
 
 def capture_output(io=STDERR)
