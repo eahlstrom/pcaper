@@ -25,14 +25,14 @@ class TestConfig < MiniTest::Unit::TestCase
         :tcpdump => 'tcpdump_opts',
       }
     }
-    Pcaper::Config.load(@tc)
+    Pcaper::Config.load_hash(@tc)
   end
 
   def test_it_should_verify_config_layout
     @tc.keys.each do |config_key|
       tc = @tc.dup
       tc.delete(config_key)
-      assert_raises(ArgumentError, "config without '#{config_key.inspect}' key") { Pcaper::Config.load(tc) }
+      assert_raises(ArgumentError, "config without '#{config_key.inspect}' key") { Pcaper::Config.load_hash(tc) }
     end
   end
 
