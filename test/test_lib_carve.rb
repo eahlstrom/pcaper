@@ -5,6 +5,10 @@ require 'fileutils'
 
 class TestCarve < MiniTest::Unit::TestCase
 
+  def setup
+    create_pcaps_db(fixture_join('skel/fully_populated.sql'))
+  end
+
   def test_pcap_filter_generated
     carver = Pcaper::Carve.new(
       :start_time => "2013-12-01 11:15:26 +0100",

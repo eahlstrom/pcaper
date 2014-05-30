@@ -1,6 +1,9 @@
 require_relative 'init'
 
 class TestPcaperInit < MiniTest::Unit::TestCase
+  def setup
+    create_pcaps_db(fixture_join('skel/fully_populated.sql'))
+  end
 
   def test_this_testbeds_pcapdb
     assert_equal [:pcaps], Pcaper::DB.tables
