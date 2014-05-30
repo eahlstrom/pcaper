@@ -72,5 +72,9 @@ class TestConfig < MiniTest::Unit::TestCase
     assert_equal 'bin/tcpdump tcpdump_opts', Pcaper::Config.command_tcpdump
   end
 
+  def test_it_should_return_nil_for_an_empty_sub_option
+    assert_nil Pcaper::Config.web_none_existing_key
+  end
+
 end
 
