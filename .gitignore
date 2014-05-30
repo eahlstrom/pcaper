@@ -8,4 +8,4 @@ carved.pcap
 web/db/web.db
 web/files
 bin/wrap.sh
-test/fixtures/pcaps.db
+test/fixtures/tmp/*

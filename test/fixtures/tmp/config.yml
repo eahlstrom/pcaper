@@ -1,5 +1,5 @@
 ---
-:db: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/pcaps.db
+:db: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/tmp/pcaps.db
 :argusdir: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/argus/{device}/%Y/%m/%d
 :web_db: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/web.db
 :web_carve_dir: /home/erik/Programming/Ruby/NewGitWork/pcaper/test/fixtures/webcarve
