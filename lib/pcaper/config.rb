@@ -1,8 +1,7 @@
 class Pcaper::Config
   class << self
 
-    attr_reader :version
-    attr_reader :db
+    attr_reader :version, :dbfile, :db
 
     def load
       if ENV['PCAPER_CONF']
@@ -35,11 +34,20 @@ class Pcaper::Config
       verify_config_layout(config_hash)
       @c = config_hash
       @version = @c[:config_ver]
-      @db = @c[:db]
+      @db = Sequel.sqlite(@c[:db])
     end
 
     def load_yaml_file(file)
       load_hash(YAML::load(File.read(file)))
+    end
+
+    def unload_config!
+      remove_instance_variable(:@c)       if defined?(@c)
+      remove_instance_variable(:@version) if defined?(@version)
+    end
+
+    def loaded?
+      !(version.nil? || db.nil?)
     end
 
     def verify_config_layout(config_hash)

@@ -25,7 +25,7 @@ class TestConfig < MiniTest::Unit::TestCase
         :tcpdump => 'tcpdump_opts',
       }
     }
-    Pcaper::Config.load_hash(@tc)
+    Pcaper::Config.unload_config!
   end
 
   def test_it_should_verify_config_layout
@@ -47,33 +47,53 @@ class TestConfig < MiniTest::Unit::TestCase
   end
 
   def test_it_has_version
+    Pcaper::Config.load_hash(@tc)
     assert_equal @tc[:config_ver], Pcaper::Config.version
   end
 
   def test_it_has_db
-    assert_equal @tc[:db], Pcaper::Config.db
+    Pcaper::Config.load_hash(@tc)
+    assert Pcaper::Config.db
   end
 
   def test_it_has_argus_dir
+    Pcaper::Config.load_hash(@tc)
     assert_equal @tc[:directories][:argus], Pcaper::Config.argus_dir
   end
 
   def test_it_autoresolves_dirs
+    Pcaper::Config.load_hash(@tc)
     assert_equal @tc[:directories][:rlsdk2], Pcaper::Config.rlsdk2_dir
   end
 
   def test_it_autoresolves_web_parameters
+    Pcaper::Config.load_hash(@tc)
     assert_equal @tc[:web][:db], Pcaper::Config.web_db
     assert_equal @tc[:web][:carve_dir], Pcaper::Config.web_carve_dir
     assert_equal @tc[:web][:standalone], Pcaper::Config.web_standalone
   end
 
   def test_it_autoresolves_commands_with_params
+    Pcaper::Config.load_hash(@tc)
     assert_equal 'bin/tcpdump tcpdump_opts', Pcaper::Config.command_tcpdump
   end
 
   def test_it_should_return_nil_for_an_empty_sub_option
+    Pcaper::Config.load_hash(@tc)
     assert_nil Pcaper::Config.web_none_existing_key
+  end
+
+  def test_it_should_unload_config
+    Pcaper::Config.load_hash(@tc)
+    assert Pcaper::Config.loaded?
+    Pcaper::Config.unload_config!
+    refute Pcaper::Config.loaded?
+  end
+
+  def test_if_its_loaded
+    refute Pcaper::Config.loaded?
+    Pcaper::Config.load_hash(@tc)
+    assert Pcaper::Config.loaded?
   end
 
 end
