@@ -12,6 +12,14 @@ if Sequel::VERSION >= "4"
 end
 
 module Pcaper
+  VERSION = "0.0.1"
+end
+
+require 'pcaper/config'
+Pcaper::Config.load unless Pcaper::Config.loaded?
+Sequel::Model.db = Pcaper::Config.db
+
+module Pcaper
   unless defined?(CONFIG_FILE)
     if ENV['PCAPER_CONF'] && File.exist?(ENV['PCAPER_CONF'])
       CONFIG_FILE = ENV['PCAPER_CONF']
@@ -22,7 +30,6 @@ module Pcaper
     end
   end
 
-  VERSION = "0.0.1"
   CONFIG = YAML::load_file(CONFIG_FILE)                             unless defined?(CONFIG)
   DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))   unless defined?(DIR)
   DB = Sequel.sqlite(Pcaper::CONFIG[:db])                           unless defined?(DB)
@@ -34,7 +41,6 @@ end
 Sequel::Model.db = Pcaper::DB
 
 require 'pcaper/helpers'
-require 'pcaper/external_commands'
 require 'pcaper/ip_helpers'
 require 'pcaper/config'
 require 'pcaper/capinfo'

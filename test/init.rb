@@ -100,5 +100,7 @@ module Pcaper
   CONFIG = TESTBED_CONFIG
 end
 
+require_relative '../lib/pcaper/config'
+Pcaper::Config.load_hash(TESTBED_CONFIG)
 require_relative '../lib/pcaper'
 

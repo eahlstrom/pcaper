@@ -1,5 +1,4 @@
 class Pcaper::FindClosedPcaps
-  extend Pcaper::ExternalCommands
 
   attr_accessor :dir, :file_glob
 
@@ -33,7 +32,7 @@ class Pcaper::FindClosedPcaps
     end
 
     def open_pcap_inodes_lsof
-      @open_pcap_inodes ||= File.popen("#{ext_lsof} -F +d #{dir}").collect do |line|
+      @open_pcap_inodes ||= File.popen("#{Pcaper::Config.command_lsof} -F +d #{dir}").collect do |line|
         $1.to_i if line =~ /^i(\d+)/
       end.compact
     end

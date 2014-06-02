@@ -1,7 +1,15 @@
+begin
+  require 'sequel'
+rescue LoadError
+  require 'rubygems'
+  require 'sequel'
+end
+require 'yaml'
+
 class Pcaper::Config
   class << self
 
-    attr_reader :version, :dbfile, :db
+    attr_reader :version, :dbfile, :db, :c
 
     def load
       if ENV['PCAPER_CONF']
@@ -31,10 +39,12 @@ class Pcaper::Config
     end
 
     def load_hash(config_hash)
+      unload_config! if loaded?
       verify_config_layout(config_hash)
       @c = config_hash
       @version = @c[:config_ver]
       @db = Sequel.sqlite(@c[:db])
+      # Pcaper::Models::Pcap.set_dataset(@db)
     end
 
     def load_yaml_file(file)
@@ -42,6 +52,10 @@ class Pcaper::Config
     end
 
     def unload_config!
+      if defined?(@db)
+        @db.disconnect
+        remove_instance_variable(:@db)
+      end
       remove_instance_variable(:@c)       if defined?(@c)
       remove_instance_variable(:@version) if defined?(@version)
     end
