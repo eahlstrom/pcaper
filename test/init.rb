@@ -41,21 +41,6 @@ TESTBED_CONFIG = {
   }
 }
 
-TESTBED_CONFIG_OLD = {
-  :db             => fixture_join('tmp/pcaps.db'),
-  :argusdir       => fixture_join('argus/{device}/%Y/%m/%d'),
-  :web_db         => fixture_join('web.db'),
-  :web_carve_dir  => fixture_join('webcarve'),
-  :standalone_web_workers => false,
-  :tcpdump        => fixture_join('bin/tcpdump'),
-  :mergecap       => fixture_join('bin/mergecap'),
-  :ra             => fixture_join('bin/ra'),
-  :racluster      => fixture_join('bin/racluster'),
-  :lsof           => fixture_join('bin/lsof'),
-  :capinfos       => fixture_join('bin/capinfos'),
-  :argus          => fixture_join('bin/argus'),
-}
-
 def create_pcaps_db(insert_file)
   create_table = File.read(File.join(pcaper_home, 'db', '_pcaps.db.dump'))
   if insert_file
@@ -67,9 +52,11 @@ def create_pcaps_db(insert_file)
     sqlite.write(insert) if insert_file
   end
   # need to reload Sequel after db file changed
-  Pcaper::DB.disconnect
-  Pcaper::DB.connect(TESTBED_CONFIG[:db])
-  Pcaper::Models::Pcap.set_dataset(Pcaper::DB[:pcaps])
+  if Pcaper::Config.loaded?
+    Pcaper::Config.db.disconnect
+    Pcaper::Config.db.connect(TESTBED_CONFIG[:db])
+    Pcaper::Models::Pcap.set_dataset(Pcaper::Config.db[:pcaps])
+  end
 end
 
 def create_config_file
@@ -82,7 +69,6 @@ end
 
 def capture_output(io=STDERR)
   backup_io = io.dup
-  output = ""
   begin
     Tempfile.open("captured_stderr") do |f|
       io.reopen(f)
@@ -93,11 +79,6 @@ def capture_output(io=STDERR)
   ensure
     io.reopen backup_io
   end
-end
-
-module Pcaper
-  CONFIG_FILE = :skip
-  CONFIG = TESTBED_CONFIG
 end
 
 require_relative '../lib/pcaper/config'

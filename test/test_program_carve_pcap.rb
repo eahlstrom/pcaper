@@ -5,6 +5,7 @@ require 'fileutils'
 
 class TestProgramCarvePcap < MiniTest::Unit::TestCase
   def setup
+    Pcaper::Config.unload_config!
     create_pcaps_db(fixture_join('skel/fully_populated.sql'))
     @fixture_tmpdir = fixture_join('tmp')
     @config_file = create_config_file

@@ -13,7 +13,7 @@ require 'fileutils'
 include FileUtils
 
 options = OpenStruct.new
-options.dst_dir = Pcaper::CONFIG[:argusdir]
+options.dst_dir = Pcaper::Config.argus_dir
 options.argus_opts = '-U 100'
 options.device_regx = '(eth\d+)'
 options.verbose = false

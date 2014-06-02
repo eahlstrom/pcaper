@@ -4,7 +4,7 @@ require 'fileutils'
 
 def num_rows_in_db_where_argus_file_is_null
   sql = %{select count(*) from pcaps where argus_file is null}
-  rows = `sqlite3 #{Pcaper::CONFIG[:db]} '#{sql}'`.chomp.to_i
+  rows = `sqlite3 #{TESTBED_CONFIG[:db]} '#{sql}'`.chomp.to_i
   unless $?.success?
     raise "sqlite3 command failed!"
   end

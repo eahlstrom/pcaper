@@ -14,7 +14,7 @@ include FileUtils
 
 options = OpenStruct.new
 options.recs_around = 5
-options.tmp_dir = Pcaper::CONFIG[:tmpdir]
+options.tmp_dir = Pcaper::Config.tmp_dir || '/tmp'
 options.dst_pcap = Time.now.strftime("carved_%s.pcap")
 options.verbose = false
 options.dry_run = false

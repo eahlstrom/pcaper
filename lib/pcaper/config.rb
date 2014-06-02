@@ -6,6 +6,7 @@ rescue LoadError
 end
 require 'yaml'
 
+module Pcaper
 class Pcaper::Config
   class << self
 
@@ -141,4 +142,5 @@ END
     end
 
   end
+end
 end
