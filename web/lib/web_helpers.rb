@@ -24,7 +24,9 @@ module WebHelpers
   end
 
   def url_serialize(sess)
-    sprintf("start_time=%s&records_around=%s&proto=%s&src=%s&sport=%s&dst=%s&dport=%s", sess[:stime], params[:records_around], sess[:proto], sess[:saddr], sess[:sport], sess[:daddr], sess[:dport])
+    sprintf("start_time=%s&records_around=%s&proto=%s&src=%s&sport=%s&dst=%s&dport=%s", 
+            sess[:stime], params[:records_around], sess[:proto], 
+            sess[:saddr], sess[:sport], sess[:daddr], sess[:dport])
   end
 
   def asciify(str)

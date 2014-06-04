@@ -21,10 +21,10 @@ TESTBED_CONFIG = {
   :directories  => {
     :argus  => fixture_join('argus/{device}/%Y/%m/%d'),
   },
-  :web=>{
-    :web_db         => fixture_join('web.db'),
-    :web_carve_dir  => fixture_join('webcarve'),
-    :standalone_web_workers=>false
+  :web => {
+    :db                 => fixture_join('tmp/web.db'),
+    :carve_dir          => fixture_join('tmp/webcarve'),
+    :standalone_worker  => true,
   },
   :commands=> {
     :tcpdump    => fixture_join('bin/tcpdump'),
@@ -51,12 +51,20 @@ def create_pcaps_db(insert_file)
     sqlite.write(create_table)
     sqlite.write(insert) if insert_file
   end
-  # need to reload Sequel after db file changed
-  if Pcaper::Config.loaded?
-    Pcaper::Config.db.disconnect
-    Pcaper::Config.db.connect(TESTBED_CONFIG[:db])
-    Pcaper::Models::Pcap.set_dataset(Pcaper::Config.db[:pcaps])
+  Pcaper::Config.reload_db if Pcaper::Config.loaded?
+end
+
+def create_web_db(insert_file=nil)
+  create_table = File.read(File.join(pcaper_home, 'web/db/_web.db.dump'))
+  if insert_file
+    insert = File.read(insert_file).gsub(/__PCAPER_HOME__/, pcaper_home)
   end
+  FileUtils.rm_f(TESTBED_CONFIG[:web][:db]) if File.exist?(TESTBED_CONFIG[:web][:db])
+  File.popen("sqlite3 #{TESTBED_CONFIG[:web][:db]}", 'w') do |sqlite|
+    sqlite.write(create_table)
+    sqlite.write(insert) if insert_file
+  end
+  Pcaper::Config.reload_webdb if Pcaper::Config.loaded?
 end
 
 def create_config_file

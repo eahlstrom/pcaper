@@ -1,15 +1,15 @@
 require 'json'
 require 'zlib'
 
-class CarveDatabase
+class CarveRecord
   attr_reader :carve, :params
 
   def initialize(params = nil)
-    @carve = Pcaper::WEBDB[:carve]
+    @carve = Pcaper::Config.webdb[:carve]
     @params = params
   end
 
-  def working_on_params?
+  def carve_record_found?
     !!carve.where(:chksum => chksum).first
   end
 
@@ -17,7 +17,7 @@ class CarveDatabase
     carve.insert(
       :chksum       => chksum,
       :submitted    => Time.now.to_i,
-      :local_file   => File.join(Pcaper::CONFIG[:web_carve_dir], chksum.to_s + '.pcap'),
+      :local_file   => File.join(Pcaper::Config.web_carve_dir, chksum.to_s + '.pcap'),
       :params       => params.to_json,
       :worker_state => 'submitted'
     )

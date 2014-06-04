@@ -16,7 +16,7 @@ class TestConfig < MiniTest::Unit::TestCase
       :web=>{
         :db         => 'web.db',
         :carve_dir  => 'webcarve',
-        :standalone => false,
+        :standalone_worker => false,
       },
       :commands=> {
         :tcpdump    => 'bin/tcpdump',
@@ -51,9 +51,14 @@ class TestConfig < MiniTest::Unit::TestCase
     assert_equal @tc[:config_ver], Pcaper::Config.version
   end
 
-  def test_it_has_db
+  def test_it_has_db_initialized
     Pcaper::Config.load_hash(@tc)
-    assert Pcaper::Config.db
+    assert_equal Sequel::SQLite::Database, Pcaper::Config.db.class
+  end
+
+  def test_it_has_db_as_the_correct_file
+    Pcaper::Config.load_hash(@tc)
+    assert_equal @tc[:db], Pcaper::Config.dbfile
   end
 
   def test_it_has_argus_dir
@@ -70,7 +75,7 @@ class TestConfig < MiniTest::Unit::TestCase
     Pcaper::Config.load_hash(@tc)
     assert_equal @tc[:web][:db], Pcaper::Config.web_db
     assert_equal @tc[:web][:carve_dir], Pcaper::Config.web_carve_dir
-    assert_equal @tc[:web][:standalone], Pcaper::Config.web_standalone
+    assert_equal @tc[:web][:standalone_worker], Pcaper::Config.web_standalone_worker
   end
 
   def test_it_autoresolves_commands_with_params
@@ -94,6 +99,21 @@ class TestConfig < MiniTest::Unit::TestCase
     refute Pcaper::Config.loaded?
     Pcaper::Config.load_hash(@tc)
     assert Pcaper::Config.loaded?
+  end
+
+  def test_it_has_webdb_initialized
+    Pcaper::Config.load_hash(@tc)
+    assert_equal Sequel::SQLite::Database, Pcaper::Config.webdb.class
+  end
+
+  def test_it_has_webdb_as_the_correct_file
+    Pcaper::Config.load_hash(@tc)
+    assert_equal @tc[:web][:db], Pcaper::Config.webdbfile
+  end
+
+  def test_it_has_web_carvedir
+    Pcaper::Config.load_hash(@tc)
+    assert_equal @tc[:web][:carve_dir], Pcaper::Config.web_carve_dir
   end
 
 end

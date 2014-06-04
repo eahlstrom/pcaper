@@ -1,12 +1,12 @@
-#status_table
-  = haml :carve_status_table
-
 - unless defined? @err
 
-  - if @db.worker_state == 'done'
-    %a.btn{:href => "/download/#{@db.chksum}"} Download
+  #status_table
+    = haml :carve_status_table
 
-  - elsif %w{ processing submitted }.include?(@db.worker_state)
+  - if @rec.worker_state == 'done'
+    %a.btn{:href => "/download/#{@rec.chksum}"} Download
+
+  - elsif %w{ processing submitted }.include?(@rec.worker_state)
     :javascript
       function interval_monitor(millisecs) {
         var timer = setInterval(function(){
@@ -15,7 +15,7 @@
             console.log(state);
             if (state == "done") {
               clearInterval(ival);
-              document.location = '/download/#{@db.chksum}';
+              document.location = '/download/#{@rec.chksum}';
             } else if (state == "failed") {
               clearInterval(ival);
             } else {

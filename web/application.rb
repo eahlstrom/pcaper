@@ -9,25 +9,27 @@ require 'sinatra'
 require 'haml'
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 require 'web_helpers'
-require 'carve_db'
+require 'carve_record'
 require 'fileutils'
 require File.expand_path(File.join(File.dirname(__FILE__), 'bin', 'worker'))
 
-begin
-  chkfile = File.join(File.dirname(Pcaper::CONFIG[:web_db]), '.chkperm')
-  File.open(chkfile, 'w') {|fh| fh.puts 'test'}
-  FileUtils.rm_f(chkfile)
-rescue Errno::EACCES
-  raise "web_db must be in a writable directory! (dirname: #{File.dirname(Pcaper::CONFIG[:web_db])})"
+if Pcaper::Config.webdb.database_type == :sqlite
+  begin
+    chkfile = File.join(File.dirname(Pcaper::Config.webdbfile), '.chkperm')
+    File.open(chkfile, 'w') {|fh| fh.puts 'test'}
+    FileUtils.rm_f(chkfile)
+  rescue Errno::EACCES
+    raise "web_db must be in a writable directory! (dirname: #{File.dirname(Pcaper::Config.webdbfile)})"
+  end
 end
 
 begin 
-  FileUtils.mkdir_p(Pcaper::CONFIG[:web_carve_dir]) unless File.exist?(Pcaper::CONFIG[:web_carve_dir])
-  chkfile = File.join(Pcaper::CONFIG[:web_carve_dir], '.chkperm')
+  FileUtils.mkdir_p(Pcaper::Config.web_carve_dir) unless File.exist?(Pcaper::Config.web_carve_dir)
+  chkfile = File.join(Pcaper::Config.web_carve_dir, '.chkperm')
   File.open(chkfile, 'w') {|fh| fh.puts 'test'}
   FileUtils.rm_f(chkfile)
 rescue Errno::EACCES
-  raise "web_carve_dir must be a writable directory! (dirname: #{Pcaper::CONFIG[:web_carve_dir]})"
+  raise "web_carve_dir must be a writable directory! (dirname: #{Pcaper::Config.web_carve_dir})"
 end
 
 helpers WebHelpers
@@ -57,7 +59,6 @@ get '/find' do
     @err = "All required fields (#{req_params.join(', ')}) must be set" unless params_set.empty?
   end
 
-
   if request.xhr?
     haml :find_table, :layout => false
   else
@@ -66,25 +67,29 @@ get '/find' do
 end
 
 get '/carve' do
-  @db = CarveDatabase.new(params)
-  unless @db.working_on_params?
-    begin
-      @carver = carver_for_params(params)
-      @db.add
-      Thread.new { Worker.run } unless Pcaper::CONFIG[:standalone_web_workers]
-    rescue ArgumentError => e
-      @err = e.message
+  begin
+    @rec = CarveRecord.new(params)
+    unless @rec.carve_record_found?
+      carver = carver_for_params(params)
+      if carver.session_find.empty?
+        @err = "no sessions where found."
+      else
+        @rec.add
+        Thread.new { Worker.run } unless Pcaper::Config.web_standalone_worker
+      end
     end
+  rescue => e
+    @err = e.class.to_s + ": " + e.message
   end
   haml :carve
 end
 
 get '/download/:chksum' do
-  row = Pcaper::WEBDB[:carve].where(:chksum => params[:chksum]).first
+  row = Pcaper::Config.webdb[:carve].where(:chksum => params[:chksum], :worker_state => 'done').first
   raise Sinatra::NotFound unless row
-  params = JSON::load(row[:params])
-  filename = [ params['src'], params['sport'] ].join(":")
-  filename += "_" + [ params['dst'], params['dport'] ].join(":") + ".pcap"
+  row_params = JSON::load(row[:params])
+  filename = [ row_params['src'], row_params['sport'] ].join(":")
+  filename += "_" + [ row_params['dst'], row_params['dport'] ].join(":") + ".pcap"
   send_file row[:local_file], :type => 'pcap', :filename => filename
 end
 

@@ -10,7 +10,7 @@ module Pcaper
 class Pcaper::Config
   class << self
 
-    attr_reader :version, :dbfile, :db, :c
+    attr_reader :version, :db, :c, :webdb
 
     def load
       if ENV['PCAPER_CONF']
@@ -45,6 +45,7 @@ class Pcaper::Config
       @c = config_hash
       @version = @c[:config_ver]
       @db = Sequel.sqlite(@c[:db])
+      @webdb = Sequel.sqlite(web_db)
       # Pcaper::Models::Pcap.set_dataset(@db)
     end
 
@@ -53,16 +54,30 @@ class Pcaper::Config
     end
 
     def unload_config!
-      if defined?(@db)
-        @db.disconnect
-        remove_instance_variable(:@db)
+      @db.disconnect if defined?(@db)
+      @webdb.disconnect if defined?(@webdb)
+      instance_variables.each do |var|
+        remove_instance_variable(var)
       end
-      remove_instance_variable(:@c)       if defined?(@c)
-      remove_instance_variable(:@version) if defined?(@version)
+    end
+
+    def reload_db
+      if loaded?
+        @db.disconnect
+        @db.connect(TESTBED_CONFIG[:db])
+        Pcaper::Models::Pcap.set_dataset(@db[:pcaps])
+      end
+    end
+
+    def reload_webdb
+      if loaded?
+        @webdb.disconnect
+        @webdb.connect(webdbfile)
+      end
     end
 
     def loaded?
-      !(version.nil? || db.nil?)
+      !(version.nil? || db.nil? || webdb.nil?)
     end
 
     def verify_config_layout(config_hash)
@@ -106,6 +121,14 @@ class Pcaper::Config
       return r.empty? ? 'NOT FOUND!!' : r
     end
 
+    def dbfile
+      db.opts[:database] if db
+    end
+
+    def webdbfile
+      webdb.opts[:database] if webdb
+    end
+
     def print_default_config
       $stderr.puts "Example of a default config:"
       $stderr.puts "---- snipp ----"
@@ -120,9 +143,9 @@ puts <<END
   :argus: /opt/{device}/argus/%Y/%m/%d
 
 :web:
-  :web_db:        /etc/pcaper/web/web.db
-  :web_carve_dir: /etc/pcaper/web/webcarve
-  :standalone:    false
+  :db:                  /etc/pcaper/web/web.db
+  :carve_dir:           /etc/pcaper/web/webcarve
+  :standalone_worker:   false                     
 
 :commands:
   :tcpdump:     #{resolve_path_for(:tcpdump)}
