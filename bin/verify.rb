@@ -73,6 +73,10 @@ def epoch2human(usecs)
   Time.at(usecs).strftime("%Y-%m-%d %T")
 end
 
+def magic(file)
+  File.read(file,4).unpack("H*").first
+end
+
 limit = 50
 total_size_on_disc = 0
 scope = Pcaper::Models::Pcap.select(:id, :start_time, :end_time, :filename, :filesize, :argus_file)
@@ -83,10 +87,11 @@ end
 if options.check_files
   0.step(scope.count, limit) do |offset|
     scope.limit(limit, offset).each do |r|
+      puts "checking file #{r[:filename]}" if options.verbose
       # pcap checks
       if r[:filename] && File.exist?(r[:filename])
-        if `file #{r[:filename]}`.scan(/capture file/).empty?
-          out r[:id], "invalid file type: #{r[:filename]}"
+        unless magic(r[:filename]) == 'd4c3b2a1'
+          out r[:id], "invalid file type: #{r[:filename]}. magic != 0xd4c3b2a1"
         end
         on_disk_size = File.stat(r[:filename]).size
         total_size_on_disc += on_disk_size
@@ -102,8 +107,8 @@ if options.check_files
       
       # argus checks
       if r[:argus_file] && File.exist?(r[:argus_file])
-        if `file #{r[:argus_file]}`.scan(/DBase 3 data file/).empty?
-          out r[:id], "invalid file type: #{r[:argus_file]}"
+        unless magic(r[:argus_file]) == '83100020'
+          out r[:id], "invalid file type: #{r[:argus_file]}. magic != 0x83100020"
         end
       else
         out r[:id], "No file: #{r[:argus_file]}"
