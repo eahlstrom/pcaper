@@ -3,7 +3,7 @@ require 'rack/test'
 require_relative '../web/application'
 
 
-class TestWebSinatra < MiniTest::Unit::TestCase
+class TestWebSinatra < Minitest::Test
   include Rack::Test::Methods
 
   def setup

@@ -3,7 +3,7 @@ require 'stringio'
 require 'fileutils'
 
 
-class TestCarve < MiniTest::Unit::TestCase
+class TestCarve < Minitest::Test
 
   def setup
     create_pcaps_db(fixture_join('skel/fully_populated.sql'))

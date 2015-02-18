@@ -11,7 +11,7 @@ def num_rows_in_db_where_argus_file_is_null
   return rows
 end
 
-class TestProgramGenerateArgus < MiniTest::Unit::TestCase
+class TestProgramGenerateArgus < Minitest::Test
   def setup
     @fixture_tmpdir = fixture_join('tmp')
     @config_file = create_config_file

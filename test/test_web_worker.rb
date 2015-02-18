@@ -2,7 +2,7 @@ require_relative 'init'
 require_relative '../web/bin/worker'
 
 
-class TestWebWorker < MiniTest::Unit::TestCase
+class TestWebWorker < Minitest::Test
 
   def setup
     Pcaper::Config.load_hash(TESTBED_CONFIG) unless Pcaper::Config.loaded?

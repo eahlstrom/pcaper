@@ -14,7 +14,7 @@ R = {
 }
 
 
-class TestCapinfo < MiniTest::Unit::TestCase
+class TestCapinfo < Minitest::Test
 
   def test_it_has_correct_filename
     inf = Pcaper::Capinfo.capinfo(R[:filename])

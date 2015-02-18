@@ -3,7 +3,7 @@ require 'stringio'
 require 'fileutils'
 require 'yaml'
 
-class TestConfig < MiniTest::Unit::TestCase
+class TestConfig < Minitest::Test
 
   def setup
     @tc = {
