@@ -25,5 +25,5 @@ def closed_pcaps
   (all_pcaps - open_pcaps).join("\n")
 end
 
-runcmd %{echo #{closed_pcaps} | #{@import_pcaps} -d #{@pcap_dstdir} - > #{@logfile}}
-runcmd %{#{@generate_argus} >> #{@logfile}}
+runcmd %{echo #{closed_pcaps} | #{@import_pcaps} -d #{@pcap_dstdir} - > #{@logfile} 2>&1}
+runcmd %{#{@generate_argus} >> #{@logfile} 2>&1}

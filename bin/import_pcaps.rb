@@ -62,13 +62,13 @@ rescue OptionParser::InvalidOption => e
   exit 1
 end
 
-fopts = {
-  :verbose => $options.verbose,
-  :noop => $options.dry_run,
-}
 
 
 def process_file(pcap_file)
+  fopts = {
+    :verbose => $options.verbose,
+    :noop => $options.dry_run,
+  }
   dev_regx = Regexp.new($options.device_regx)
   printf "\nProcessing #{pcap_file}...\n" if $options.verbose
 
