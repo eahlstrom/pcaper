@@ -64,7 +64,7 @@ class Pcaper::Config
     def reload_db
       if loaded?
         @db.disconnect
-        @db.connect(TESTBED_CONFIG[:db])
+        @db.connect(@c[:db])
         Pcaper::Models::Pcap.set_dataset(@db[:pcaps])
       end
     end
