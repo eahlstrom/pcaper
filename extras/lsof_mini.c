@@ -55,5 +55,6 @@ int main(int argc, char **argv)
 
   closedir(proc_dir);
   free(fstat);
+  free(linkname);
   return(0);
 }
