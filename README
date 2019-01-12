@@ -1,3 +1,18 @@
+- Description -
+
+This application index Terrabytes of pcaps with the help of argus.
+When your pcaps are indexed it's easy to use either carve_pcap.rb like:
+$ carve_pcap.rb -f 'host 10.0.0.1 and port 53' 20120402 20:10:17.500144
+or use the web frontend. This will give you a the queried sessions 
+carved out and merged into a new pcap.
+
+A perfect usecase for the web frontend is snort/suricata alerts.
+If you have these in, for example Splunk, and then configure a 
+"per event" link then you can go with one-click from the alert 
+to the full pcap stream that triggered the alert.
+
+- Install -
+
 Create a db:
   Create from template:
   $ sqlite3 db/pcaps.db < db/_pcaps.db.dump
@@ -17,11 +32,15 @@ Ruby required gems:
   base: sequel, sqlite3 (ubuntu pkgs: ruby-sequel libsqlite3-ruby sqlite3)
   web: sinatra, haml, json (ubuntu pkgs: ruby-sinatra ruby-haml ruby-json)
 
-Run:
+Scripts:
   bin/import_pcaps.rb   - to import to db and optional move your pcaps to a archive dir.
   bin/generate_argus.rb - to generate argus files based on your pcaps.
   bin/carve_pcap.rb     - to carve out a specific session.
+  extras/import_wrap_*  - import wrapper wich can be runned from cron.
 
 Webui:
   Create a db:
   $ sqlite3 db/web.db < web/db/_
+  Front this webui with something like apache, nginx or thin.
+  Obs! no authentication is built into this. Use the reverse-proxy for that.
+
