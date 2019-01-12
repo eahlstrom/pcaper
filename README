@@ -13,9 +13,12 @@ to the full pcap stream that triggered the alert.
 
 - Install -
 
-Create a db:
-  Create from template:
+* Run bin/import_pcaps.rb and generate the default config file.
+* create from template and put into dbdir:
   $ sqlite3 db/pcaps.db < db/_pcaps.db.dump
+* Test bin/import_pcaps.rb and bin/generate_argus.rb for a single pcap.
+* Create cron job for indexing automatically. (extras/import_wrap_X can be
+  used)
 
 Make sure you have these files in your $PATH:
   lsof
